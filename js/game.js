@@ -1,3 +1,5 @@
+const TARGET_ZONE_Y = canvas.height - 140; // Adjusted for new height
+const TARGET_ZONE_HEIGHT = 100; // Adjusted proportionally
 // ===== WALLET INTEGRATION =====
 // Store original functions
 let originalInit = null;
@@ -466,5 +468,6 @@ startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
 console.log('✅ Color Match Rush (20s, Bigger Zone) loaded!');
+
 
 
