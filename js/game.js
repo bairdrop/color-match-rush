@@ -1,3 +1,33 @@
+// Override startGame function to include payment
+const originalStartGame = startGame;
+
+async function startGame() {
+    // Check wallet connection
+    if (!window.isWalletConnected || !window.isWalletConnected()) {
+        alert('Please connect your wallet first!');
+        return;
+    }
+    
+    // Process payment
+    const paymentSuccess = await window.payToPlay();
+    
+    if (paymentSuccess) {
+        // Start the game
+        originalStartGame();
+    }
+}
+
+// Update endGame to check for winners
+const originalEndGame = endGame;
+
+function endGame() {
+    // Check if player won
+    if (window.rewardWinner) {
+        window.rewardWinner(score);
+    }
+    
+    originalEndGame();
+}
 // ===== CANVAS SETUP =====
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -368,3 +398,4 @@ startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
 console.log('✅ Color Match Rush (20s, Bigger Zone) loaded!');
+
