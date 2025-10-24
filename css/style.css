@@ -467,3 +467,43 @@ h1 {
     opacity: 0.6;
 }
 
+/* Payment Section */
+.pay-section {
+    margin: 25px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.price {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.prize {
+    font-size: 16px;
+    margin: 8px 0;
+}
+
+/* Prize Won */
+.prize-won {
+    margin: 20px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.prize-amount {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.prize-note {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
