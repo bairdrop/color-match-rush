@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color Match Rush</title>
     
-    <!-- Farcaster Meta Tags -->
     <meta property="fc:frame" content="vNext">
     <meta property="fc:frame:image" content="https://color-match-rush.vercel.app/preview.png">
     <meta property="fc:frame:button:1" content="🎮 Play Game">
@@ -54,7 +53,6 @@
                 <p>⏱️ You have 20 seconds</p>
                 <p>✅ Correct in zone = +10 points</p>
                 <p>❌ Wrong color = -5 points</p>
-                <p>⚠️ Tap outside zone = -2 points</p>
             </div>
         </div>
 
@@ -72,33 +70,22 @@
         </div>
     </div>
 
-    <!-- CRITICAL: Load Farcaster SDK FIRST -->
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.5/dist/sdk.umd.js"></script>
-    
-    <!-- Load game AFTER SDK -->
     <script src="js/game.js"></script>
     
-    <!-- Initialize Farcaster LAST -->
     <script>
-        // Wait for everything to load
-        window.addEventListener('load', async function() {
-            try {
-                // Give SDK time to initialize
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // Check if SDK exists
-                if (window.FrameSDK) {
-                    console.log('✅ SDK found, calling ready()');
-                    await window.FrameSDK.actions.ready();
-                    console.log('✅ Ready called successfully!');
-                } else {
-                    console.log('⚠️ Not in Farcaster, hiding splash manually');
-                    // If not in Farcaster, just remove any loading overlays
-                }
-            } catch (error) {
-                console.error('❌ SDK error:', error);
+    window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            if (typeof window.FrameSDK !== 'undefined') {
+                window.FrameSDK.actions.ready().then(function() {
+                    console.log('Farcaster SDK ready called');
+                }).catch(function(err) {
+                    console.error('SDK ready error:', err);
+                });
+            } else {
+                console.log('Not in Farcaster context');
             }
-        });
+        }, 500);
+    });
     </script>
 </body>
 </html>
