@@ -1,21 +1,3 @@
-
-```javascript
-// ===== FARCASTER SDK INITIALIZATION =====
-// Initialize Farcaster SDK and call ready()
-(async function initializeFarcaster() {
-    try {
-        if (window.FarcasterFrameSDK) {
-            const sdk = window.FarcasterFrameSDK;
-            await sdk.actions.ready();
-            console.log('✅ Farcaster SDK ready');
-        } else {
-            console.log('⚠️ Not running in Farcaster - skipping SDK init');
-        }
-    } catch (error) {
-        console.error('❌ Farcaster SDK error:', error);
-    }
-})();
-
 // ===== CANVAS SETUP =====
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -394,3 +376,4 @@ console.log('✅ Color Match Rush (20s, Bigger Zone) loaded!');
 ```
 
 **Save this as `js/game.js`**
+
