@@ -22,7 +22,7 @@ let circles = [];
 let particles = [];
 
 // ===== CONSTANTS =====
-const TARGET_ZONE_Y = canvas.height - 110; // Adjusted for 400px height
+const TARGET_ZONE_Y = canvas.height - 110;
 const TARGET_ZONE_HEIGHT = 90;
 
 // ===== COLORS =====
@@ -58,7 +58,6 @@ Object.values(audio).forEach(sound => {
 
 // ===== DRAW TARGET ZONE =====
 function drawTargetZone() {
-    // Draw background zone with gradient (more visible)
     const gradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, canvas.height);
     gradient.addColorStop(0, 'rgba(102, 126, 234, 0.15)');
     gradient.addColorStop(0.5, 'rgba(102, 126, 234, 0.25)');
@@ -67,29 +66,25 @@ function drawTargetZone() {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, TARGET_ZONE_Y, canvas.width, TARGET_ZONE_HEIGHT);
 
-    // Draw top border with animation (pulsing)
     const pulseOffset = Math.sin(Date.now() / 300) * 3;
     ctx.strokeStyle = '#667eea';
     ctx.lineWidth = 4;
-    ctx.setLineDash([15, 8]);
+    ctx.setLineDash();
     ctx.beginPath();
     ctx.moveTo(0, TARGET_ZONE_Y + pulseOffset);
     ctx.lineTo(canvas.width, TARGET_ZONE_Y + pulseOffset);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Draw "TAP ZONE" text (larger)
     ctx.fillStyle = 'rgba(102, 126, 234, 0.8)';
     ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'center';
     ctx.fillText('⬇ TAP ZONE ⬇', canvas.width / 2, TARGET_ZONE_Y + 25);
     
-    // Draw helper text
     ctx.font = '14px Arial';
     ctx.fillStyle = 'rgba(102, 126, 234, 0.6)';
     ctx.fillText('Match color when circle is here!', canvas.width / 2, TARGET_ZONE_Y + 50);
 
-    // Draw bottom border
     ctx.strokeStyle = '#667eea';
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -112,24 +107,18 @@ class Circle {
 
     update() {
         this.y += this.speed;
-        
-        // Check if in target zone (bigger zone now)
         this.inTargetZone = (this.y >= TARGET_ZONE_Y && this.y <= canvas.height - 40);
-        
-        // Check if passed target zone (missed)
         if (this.y > canvas.height - 30) {
             this.toRemove = true;
         }
     }
 
     draw() {
-        // Add glow effect when in target zone
         if (this.inTargetZone) {
             ctx.save();
             ctx.shadowBlur = 25;
             ctx.shadowColor = COLORS[this.color];
             
-            // Draw pulsing ring around circle
             const pulseSize = Math.sin(Date.now() / 200) * 6 + 6;
             ctx.strokeStyle = COLORS[this.color];
             ctx.lineWidth = 5;
@@ -139,32 +128,27 @@ class Circle {
             ctx.restore();
         }
 
-        // Draw shadow
         ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
         ctx.beginPath();
         ctx.arc(this.x + 3, this.y + 3, this.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw circle
         ctx.fillStyle = COLORS[this.color];
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw highlight
         ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.beginPath();
         ctx.arc(this.x - 8, this.y - 8, 8, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw border (thicker when in zone)
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
         ctx.lineWidth = this.inTargetZone ? 4 : 3;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Draw arrow pointing down when in target zone (bigger)
         if (this.inTargetZone) {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
             ctx.font = 'bold 24px Arial';
@@ -243,13 +227,11 @@ function handleColorClick(clickedColor) {
     let matched = false;
     let foundInZone = false;
     
-    // Check circles in target zone ONLY
     circles.forEach((circle, index) => {
         if (circle.inTargetZone && !circle.toRemove) {
             foundInZone = true;
             
             if (circle.color === clickedColor) {
-                // Correct match!
                 score += 10;
                 matched = true;
                 circle.toRemove = true;
@@ -257,18 +239,15 @@ function handleColorClick(clickedColor) {
                 audio.correct.play().catch(() => {});
                 createParticles(circle.x, circle.y, COLORS[circle.color], 20);
                 
-                // Button animation
                 const btn = document.querySelector(`[data-color="${clickedColor}"]`);
                 btn.classList.add('correct');
                 setTimeout(() => btn.classList.remove('correct'), 300);
             } else {
-                // Wrong color match
                 score = Math.max(0, score - 5);
                 matched = true;
                 
                 audio.wrong.play().catch(() => {});
                 
-                // Button animation
                 const btn = document.querySelector(`[data-color="${clickedColor}"]`);
                 btn.classList.add('wrong');
                 setTimeout(() => btn.classList.remove('wrong'), 300);
@@ -276,7 +255,6 @@ function handleColorClick(clickedColor) {
         }
     });
 
-    // Penalty for clicking when no circle in zone
     if (!foundInZone) {
         score = Math.max(0, score - 2);
     }
@@ -298,27 +276,21 @@ function init() {
 function gameLoop() {
     if (!gameRunning) return;
 
-    // Clear canvas with gradient background
     const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
     bgGradient.addColorStop(0, '#ffffff');
     bgGradient.addColorStop(1, '#f0f0f0');
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw target zone FIRST (behind circles)
     drawTargetZone();
-
-    // Spawn new circles
     spawnCircle();
 
-    // Update and draw circles
     circles = circles.filter(c => !c.toRemove);
     circles.forEach(circle => {
         circle.update();
         circle.draw();
     });
 
-    // Update and draw particles
     particles = particles.filter(p => !p.isDead());
     particles.forEach(p => {
         p.update();
@@ -337,7 +309,6 @@ function endGame() {
     finalScoreEl.textContent = score;
     gameOverScreen.classList.remove('hidden');
 
-    // Check for winner (100+ score)
     if (score >= 100) {
         document.getElementById('prizeSection').classList.remove('hidden');
     }
@@ -372,8 +343,4 @@ colorButtons.forEach(btn => {
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
-console.log('✅ Color Match Rush (20s, Bigger Zone) loaded!');
-```
-
-**Save this as `js/game.js`**
-
+console.log('✅ Color Match Rush loaded!');
