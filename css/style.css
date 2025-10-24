@@ -374,3 +374,96 @@ h1 {
     transform: none;
 }
 
+/* Wallet Section */
+.wallet-section {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+}
+
+.wallet-btn {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+    transition: all 0.3s ease;
+}
+
+.wallet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.6);
+}
+
+.wallet-info {
+    display: flex;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 12px 20px;
+    border-radius: 20px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#walletAddress {
+    font-family: monospace;
+}
+
+#walletBalance {
+    color: #2ecc71;
+}
+
+/* Payment Section */
+.pay-section {
+    margin: 25px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.price {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.prize {
+    font-size: 16px;
+    margin: 8px 0;
+}
+
+/* Prize Won */
+.prize-won {
+    margin: 20px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.prize-amount {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.prize-note {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Disabled Button */
+.main-btn:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
