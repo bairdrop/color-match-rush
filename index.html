@@ -10,15 +10,6 @@
 </head>
 <body>
     <div class="game-container">
-        <!-- Wallet Section -->
-        <div class="wallet-section">
-            <button id="connectWallet" class="wallet-btn">🔗 Connect Wallet</button>
-            <div id="walletInfo" class="wallet-info hidden">
-                <span id="walletAddress">Not Connected</span>
-                <span id="walletBalance">0 ETH</span>
-            </div>
-        </div>
-
         <div class="score-display">
             <div class="score-box"><div class="label">SCORE</div><div id="score" class="value">0</div></div>
             <div class="score-box"><div class="label">BEST</div><div id="best" class="value">0</div></div>
@@ -33,21 +24,20 @@
         </div>
         <div id="startScreen" class="overlay">
             <h1>🎨 COLOR MATCH RUSH</h1>
-            <p class="subtitle">Connect wallet and pay to play!</p>
+            <p class="subtitle">Pay to play and win!</p>
             
             <div class="pay-section">
                 <p class="price">💰 Entry: 0.00001 ETH</p>
                 <p class="prize">🏆 Win: 0.00002 ETH (100+ score)</p>
             </div>
             
-            <button id="startBtn" class="main-btn" disabled>🔒 Connect Wallet First</button>
+            <button id="startBtn" class="main-btn">💰 PAY & START (0.00001 ETH)</button>
             
             <div class="instructions">
-                <p>🔗 Connect wallet above</p>
-                <p>💰 Pay 0.00001 ETH to start</p>
                 <p>🎯 Match colors in zone</p>
                 <p>⏱️ 20 seconds to score</p>
-                <p>🏆 100+ = Win prize!</p>
+                <p>✅ Correct = +10 points</p>
+                <p>🏆 100+ = Win 0.00002 ETH!</p>
             </div>
         </div>
         <div id="gameOverScreen" class="overlay hidden">
