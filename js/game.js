@@ -1,3 +1,27 @@
+// ===== FARCASTER SDK INITIALIZATION =====
+// Call ready() to hide splash screen
+(async function initializeFarcaster() {
+    try {
+        // Check if Farcaster SDK is available
+        if (window.FarcasterFrameSDK) {
+            const sdk = window.FarcasterFrameSDK;
+            await sdk.actions.ready();
+            console.log('✅ Farcaster SDK ready');
+        } else {
+            console.log('⚠️ Not running in Farcaster - skipping SDK init');
+        }
+    } catch (error) {
+        console.error('❌ Farcaster SDK error:', error);
+    }
+})();
+
+// ===== YOUR EXISTING GAME CODE BELOW =====
+// (Keep everything else the same)
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+// ... rest of your game code ...
+
 // ===== WALLET INTEGRATION =====
 // Store original functions
 let originalInit = null;
@@ -466,6 +490,7 @@ startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
 console.log('✅ Color Match Rush (20s, Bigger Zone) loaded!');
+
 
 
 
