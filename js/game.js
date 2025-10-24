@@ -1,8 +1,6 @@
-// ===== CANVAS SETUP =====
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// ===== DOM ELEMENTS =====
 const scoreEl = document.getElementById('score');
 const bestEl = document.getElementById('best');
 const timerEl = document.getElementById('timer');
@@ -13,7 +11,6 @@ const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
 const colorButtons = document.querySelectorAll('.color-btn');
 
-// ===== GAME STATE =====
 let gameRunning = false;
 let score = 0;
 let bestScore = 0;
@@ -21,11 +18,9 @@ let timeLeft = 20;
 let circles = [];
 let particles = [];
 
-// ===== CONSTANTS =====
 const TARGET_ZONE_Y = canvas.height - 110;
 const TARGET_ZONE_HEIGHT = 90;
 
-// ===== COLORS =====
 const COLORS = {
     red: '#e74c3c',
     blue: '#3498db',
@@ -35,7 +30,6 @@ const COLORS = {
 
 const colorNames = Object.keys(COLORS);
 
-// ===== LOAD BEST SCORE =====
 try {
     const saved = localStorage.getItem('colorMatchBest');
     if (saved) {
@@ -44,7 +38,6 @@ try {
     }
 } catch (e) {}
 
-// ===== AUDIO =====
 const audio = {
     correct: new Audio('sounds/correct.mp3'),
     wrong: new Audio('sounds/wrong.mp3'),
@@ -53,10 +46,9 @@ const audio = {
 
 Object.values(audio).forEach(sound => {
     sound.volume = 0.3;
-    sound.addEventListener('error', () => {});
+    sound.addEventListener('error', function() {});
 });
 
-// ===== DRAW TARGET ZONE =====
 function drawTargetZone() {
     const gradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, canvas.height);
     gradient.addColorStop(0, 'rgba(102, 126, 234, 0.15)');
@@ -69,7 +61,7 @@ function drawTargetZone() {
     const pulseOffset = Math.sin(Date.now() / 300) * 3;
     ctx.strokeStyle = '#667eea';
     ctx.lineWidth = 4;
-    ctx.setLineDash();
+    ctx.setLineDash([15, 8]);
     ctx.beginPath();
     ctx.moveTo(0, TARGET_ZONE_Y + pulseOffset);
     ctx.lineTo(canvas.width, TARGET_ZONE_Y + pulseOffset);
@@ -93,7 +85,6 @@ function drawTargetZone() {
     ctx.stroke();
 }
 
-// ===== CIRCLE CLASS =====
 class Circle {
     constructor() {
         this.x = Math.random() * (canvas.width - 60) + 30;
@@ -158,7 +149,6 @@ class Circle {
     }
 }
 
-// ===== PARTICLE CLASS =====
 class Particle {
     constructor(x, y, color) {
         this.x = x;
@@ -191,24 +181,22 @@ class Particle {
     }
 }
 
-// ===== CREATE PARTICLES =====
-function createParticles(x, y, color, count = 15) {
+function createParticles(x, y, color, count) {
+    count = count || 15;
     for (let i = 0; i < count; i++) {
         particles.push(new Particle(x, y, color));
     }
 }
 
-// ===== SPAWN CIRCLE =====
 function spawnCircle() {
     if (gameRunning && Math.random() < 0.02) {
         circles.push(new Circle());
     }
 }
 
-// ===== TIMER =====
 let timerInterval;
 function startTimer() {
-    timerInterval = setInterval(() => {
+    timerInterval = setInterval(function() {
         if (gameRunning) {
             timeLeft--;
             timerEl.textContent = timeLeft;
@@ -220,37 +208,33 @@ function startTimer() {
     }, 1000);
 }
 
-// ===== HANDLE COLOR BUTTON CLICK =====
 function handleColorClick(clickedColor) {
     if (!gameRunning) return;
 
-    let matched = false;
     let foundInZone = false;
     
-    circles.forEach((circle, index) => {
+    circles.forEach(function(circle) {
         if (circle.inTargetZone && !circle.toRemove) {
             foundInZone = true;
             
             if (circle.color === clickedColor) {
                 score += 10;
-                matched = true;
                 circle.toRemove = true;
                 
-                audio.correct.play().catch(() => {});
+                audio.correct.play().catch(function() {});
                 createParticles(circle.x, circle.y, COLORS[circle.color], 20);
                 
-                const btn = document.querySelector(`[data-color="${clickedColor}"]`);
+                const btn = document.querySelector('[data-color="' + clickedColor + '"]');
                 btn.classList.add('correct');
-                setTimeout(() => btn.classList.remove('correct'), 300);
+                setTimeout(function() { btn.classList.remove('correct'); }, 300);
             } else {
                 score = Math.max(0, score - 5);
-                matched = true;
                 
-                audio.wrong.play().catch(() => {});
+                audio.wrong.play().catch(function() {});
                 
-                const btn = document.querySelector(`[data-color="${clickedColor}"]`);
+                const btn = document.querySelector('[data-color="' + clickedColor + '"]');
                 btn.classList.add('wrong');
-                setTimeout(() => btn.classList.remove('wrong'), 300);
+                setTimeout(function() { btn.classList.remove('wrong'); }, 300);
             }
         }
     });
@@ -262,7 +246,6 @@ function handleColorClick(clickedColor) {
     scoreEl.textContent = score;
 }
 
-// ===== INITIALIZE GAME =====
 function init() {
     score = 0;
     timeLeft = 20;
@@ -272,7 +255,6 @@ function init() {
     timerEl.textContent = timeLeft;
 }
 
-// ===== GAME LOOP =====
 function gameLoop() {
     if (!gameRunning) return;
 
@@ -285,14 +267,14 @@ function gameLoop() {
     drawTargetZone();
     spawnCircle();
 
-    circles = circles.filter(c => !c.toRemove);
-    circles.forEach(circle => {
+    circles = circles.filter(function(c) { return !c.toRemove; });
+    circles.forEach(function(circle) {
         circle.update();
         circle.draw();
     });
 
-    particles = particles.filter(p => !p.isDead());
-    particles.forEach(p => {
+    particles = particles.filter(function(p) { return !p.isDead(); });
+    particles.forEach(function(p) {
         p.update();
         p.draw();
     });
@@ -300,11 +282,10 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// ===== END GAME =====
 function endGame() {
     gameRunning = false;
     clearInterval(timerInterval);
-    audio.gameOver.play().catch(() => {});
+    audio.gameOver.play().catch(function() {});
 
     finalScoreEl.textContent = score;
     gameOverScreen.classList.remove('hidden');
@@ -322,7 +303,6 @@ function endGame() {
     }
 }
 
-// ===== START GAME =====
 function startGame() {
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
@@ -332,9 +312,8 @@ function startGame() {
     gameLoop();
 }
 
-// ===== EVENT LISTENERS =====
-colorButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
+colorButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
         const color = btn.getAttribute('data-color');
         handleColorClick(color);
     });
