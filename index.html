@@ -3,22 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Match Rush</title>
+    <title>Color Match Rush - Pay to Play</title>
     
-    <!-- Farcaster Meta Tags -->
+    <!-- Farcaster Frame Meta Tags -->
     <meta property="fc:frame" content="vNext">
-    <meta property="fc:frame:image" content="https://YOUR-URL.vercel.app/preview.png">
+    <meta property="fc:frame:image" content="https://YOUR-VERCEL-URL.vercel.app/preview.png">
+    <meta property="fc:frame:button:1" content="Play Game">
+    <meta property="fc:frame:button:1:action" content="link">
+    <meta property="fc:frame:button:1:target" content="https://YOUR-VERCEL-URL.vercel.app">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Color Match Rush - Pay to Play">
+    <meta property="og:description" content="Pay 0.00001 ETH to play! Score 100+ to win 0.00002 ETH!">
+    <meta property="og:image" content="https://YOUR-VERCEL-URL.vercel.app/preview.png">
     
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Farcaster SDK -->
+    <script src="https://unpkg.com/@farcaster/frame-sdk@0.0.5/dist/frame-sdk.js"></script>
 </head>
 <body>
     <div class="game-container">
-        <!-- Wallet Connection Section -->
-        <div id="walletSection" class="wallet-section">
-            <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
+        <!-- Wallet Connection Section (Always Visible) -->
+        <div class="wallet-section">
+            <button id="connectWallet" class="wallet-btn">🔗 Connect Wallet</button>
             <div id="walletInfo" class="wallet-info hidden">
-                <span id="walletAddress">Not Connected</span>
-                <span id="walletBalance">0 ETH</span>
+                <span id="walletAddress" class="wallet-address">Not Connected</span>
+                <span id="walletBalance" class="wallet-balance">0 ETH</span>
             </div>
         </div>
 
@@ -49,25 +60,30 @@
             <button class="color-btn" data-color="yellow" style="background: #f1c40f;"></button>
         </div>
 
-        <!-- Start Screen with Payment -->
+        <!-- Start Screen -->
         <div id="startScreen" class="overlay">
             <h1>🎨 COLOR MATCH RUSH</h1>
-            <p class="subtitle">Tap the matching color!</p>
+            <p class="subtitle">Connect wallet and pay to play!</p>
             
-            <!-- Pay to Play Section -->
+            <!-- Payment Info -->
             <div class="pay-section">
-                <p class="price">💰 Pay 0.0001 ETH to Play</p>
-                <p class="prize">🏆 Win 0.0002 ETH if you score 100+</p>
+                <p class="price">💰 Entry Fee: 0.00001 ETH</p>
+                <p class="prize">🏆 Win 0.00002 ETH if you score 100+!</p>
+                <p class="prize-small">💎 Double your money by winning!</p>
             </div>
             
-            <button id="startBtn" class="main-btn">PAY & START GAME</button>
+            <button id="startBtn" class="main-btn" disabled>
+                🔒 Connect Wallet First
+            </button>
             
             <div class="instructions">
+                <p>🔗 Connect your wallet above first</p>
+                <p>💰 Pay 0.00001 ETH to start</p>
                 <p>🎯 Wait for circle to enter the TAP ZONE</p>
                 <p>💫 Circle will GLOW when ready</p>
                 <p>⏱️ You have 20 seconds</p>
-                <p>✅ Correct in zone = +10 points</p>
-                <p>❌ Wrong color = -5 points</p>
+                <p>✅ Correct = +10 points</p>
+                <p>🏆 Score 100+ = Win 0.00002 ETH!</p>
             </div>
         </div>
 
@@ -79,15 +95,15 @@
                 <div id="finalScore">0</div>
             </div>
             <div id="prizeSection" class="prize-won hidden">
-                <p>🎉 YOU WON!</p>
-                <p class="prize-amount">+0.0002 ETH</p>
+                <p class="winner-text">🎉 YOU WON!</p>
+                <p class="prize-amount">+0.00002 ETH</p>
+                <p class="prize-detail">Prize sent to your wallet!</p>
             </div>
-            <button id="restartBtn" class="main-btn">PLAY AGAIN</button>
+            <button id="restartBtn" class="main-btn">🎮 PLAY AGAIN (0.00001 ETH)</button>
         </div>
     </div>
 
-    <!-- Load Farcaster SDK -->
-    <script type="module" src="js/wallet.js"></script>
+    <script src="js/wallet.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>
