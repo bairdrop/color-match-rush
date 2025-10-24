@@ -4,88 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color Match Rush</title>
-    
     <meta property="fc:frame" content="vNext">
     <meta property="fc:frame:image" content="https://color-match-rush.vercel.app/preview.png">
-    <meta property="fc:frame:button:1" content="🎮 Play Game">
-    <meta property="fc:frame:button:1:action" content="link">
-    <meta property="fc:frame:button:1:target" content="https://color-match-rush.vercel.app">
-    
-    <meta property="og:title" content="Color Match Rush">
-    <meta property="og:description" content="Pay 0.00001 ETH to play! Win 0.00002 ETH!">
-    <meta property="og:image" content="https://color-match-rush.vercel.app/preview.png">
-    
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="game-container">
-        <div class="score-display">
-            <div class="score-box">
-                <div class="label">SCORE</div>
-                <div id="score" class="value">0</div>
-            </div>
-            <div class="score-box">
-                <div class="label">BEST</div>
-                <div id="best" class="value">0</div>
-            </div>
-            <div class="score-box">
-                <div class="label">TIME</div>
-                <div id="timer" class="value">20</div>
+        <!-- Wallet Section -->
+        <div class="wallet-section">
+            <button id="connectWallet" class="wallet-btn">🔗 Connect Wallet</button>
+            <div id="walletInfo" class="wallet-info hidden">
+                <span id="walletAddress">Not Connected</span>
+                <span id="walletBalance">0 ETH</span>
             </div>
         </div>
 
+        <div class="score-display">
+            <div class="score-box"><div class="label">SCORE</div><div id="score" class="value">0</div></div>
+            <div class="score-box"><div class="label">BEST</div><div id="best" class="value">0</div></div>
+            <div class="score-box"><div class="label">TIME</div><div id="timer" class="value">20</div></div>
+        </div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
-
         <div id="colorButtons" class="button-container">
             <button class="color-btn" data-color="red" style="background: #e74c3c;"></button>
             <button class="color-btn" data-color="blue" style="background: #3498db;"></button>
             <button class="color-btn" data-color="green" style="background: #2ecc71;"></button>
             <button class="color-btn" data-color="yellow" style="background: #f1c40f;"></button>
         </div>
-
         <div id="startScreen" class="overlay">
             <h1>🎨 COLOR MATCH RUSH</h1>
-            <p class="subtitle">Tap the matching color!</p>
-            <button id="startBtn" class="main-btn">START GAME</button>
+            <p class="subtitle">Connect wallet and pay to play!</p>
+            
+            <div class="pay-section">
+                <p class="price">💰 Entry: 0.00001 ETH</p>
+                <p class="prize">🏆 Win: 0.00002 ETH (100+ score)</p>
+            </div>
+            
+            <button id="startBtn" class="main-btn" disabled>🔒 Connect Wallet First</button>
+            
             <div class="instructions">
-                <p>🎯 Wait for circle to enter the TAP ZONE</p>
-                <p>💫 Circle will GLOW when ready</p>
-                <p>⏱️ You have 20 seconds</p>
-                <p>✅ Correct in zone = +10 points</p>
-                <p>❌ Wrong color = -5 points</p>
+                <p>🔗 Connect wallet above</p>
+                <p>💰 Pay 0.00001 ETH to start</p>
+                <p>🎯 Match colors in zone</p>
+                <p>⏱️ 20 seconds to score</p>
+                <p>🏆 100+ = Win prize!</p>
             </div>
         </div>
-
         <div id="gameOverScreen" class="overlay hidden">
             <h1>GAME OVER!</h1>
-            <div class="final-score">
-                <p>Your Score</p>
-                <div id="finalScore">0</div>
-            </div>
+            <div class="final-score"><p>Your Score</p><div id="finalScore">0</div></div>
             <div id="prizeSection" class="prize-won hidden">
-                <p class="winner-text">🎉 YOU WON!</p>
-                <p class="prize-amount">+0.00002 ETH</p>
+                <p>🎉 YOU WON!</p>
+                <p class="prize-amount">0.00002 ETH</p>
+                <p class="prize-note">Check your wallet!</p>
             </div>
-            <button id="restartBtn" class="main-btn">PLAY AGAIN</button>
+            <button id="restartBtn" class="main-btn">🎮 PLAY AGAIN (0.00001 ETH)</button>
         </div>
     </div>
-
     <script src="js/game.js"></script>
-    
     <script>
-    window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-            if (typeof window.FrameSDK !== 'undefined') {
-                window.FrameSDK.actions.ready().then(function() {
-                    console.log('Farcaster SDK ready called');
-                }).catch(function(err) {
-                    console.error('SDK ready error:', err);
-                });
-            } else {
-                console.log('Not in Farcaster context');
-            }
-        }, 500);
-    });
+    (function(){try{if(window.sdk){window.sdk.actions.ready()}else{setTimeout(function(){if(window.sdk)window.sdk.actions.ready()},1000)}}catch(e){}})();
     </script>
 </body>
 </html>
