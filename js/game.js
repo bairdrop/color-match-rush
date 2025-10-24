@@ -63,13 +63,15 @@ Object.values(audio).forEach(function(sound) {
 // ===== PAYMENT FUNCTION =====
 async function processPayment() {
     try {
-        console.log('💰 Requesting payment...');
-        
-        // Get wallet provider (Farcaster provides ethereum)
+        // Check if wallet provider exists
         if (!window.ethereum) {
-            alert('No wallet found. Please use Warpcast app.');
-            return false;
+            console.log('⚠️ No wallet provider - Preview/Testing mode');
+            console.log('💡 Payment will work in real Warpcast!');
+            // Allow play in preview mode
+            return true;
         }
+        
+        console.log('💰 Requesting payment...');
         
         const provider = window.ethereum;
         
@@ -79,7 +81,8 @@ async function processPayment() {
         });
         
         if (!accounts || accounts.length === 0) {
-            alert('No wallet connected. Please connect in Warpcast.');
+            console.log('⚠️ No account connected');
+            alert('Please connect wallet in Warpcast');
             return false;
         }
         
@@ -383,7 +386,7 @@ function actuallyStartGame() {
 // ===== START GAME WITH PAYMENT =====
 async function startGameWithPayment(btn) {
     const originalText = btn.textContent;
-    btn.textContent = '⏳ Processing Payment...';
+    btn.textContent = '⏳ Processing...';
     btn.disabled = true;
     
     const paid = await processPayment();
