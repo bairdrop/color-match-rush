@@ -1,3 +1,36 @@
+// Wait for wallet.js to load
+window.addEventListener('DOMContentLoaded', function() {
+    const originalStartGame = startGame;
+    
+    // Override start game to require payment
+    window.startGame = async function() {
+        if (!window.isWalletConnected || !window.isWalletConnected()) {
+            alert('⚠️ Please connect your wallet first!');
+            return;
+        }
+        
+        const paid = await window.payToPlay();
+        if (paid) {
+            originalStartGame();
+        }
+    };
+    
+    // Override end game to check for winners
+    const originalEndGame = endGame;
+    window.endGame = function() {
+        if (window.checkWinner) {
+            window.checkWinner(score);
+        }
+        originalEndGame();
+    };
+    
+    // Update button handlers
+    document.getElementById('startBtn').addEventListener('click', window.startGame);
+    document.getElementById('restartBtn').addEventListener('click', window.startGame);
+});
+
+// Then keep all your existing game.js code below...
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -323,3 +356,4 @@ startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
 console.log('✅ Color Match Rush loaded!');
+
