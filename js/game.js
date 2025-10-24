@@ -1,35 +1,52 @@
-// Wait for wallet.js to load
+// Payment Integration - Add at top of game.js
+let originalStartGame;
+let originalEndGame;
+
+// Wait for page load
 window.addEventListener('DOMContentLoaded', function() {
-    const originalStartGame = startGame;
+    // Store original functions
+    originalStartGame = startGame;
+    originalEndGame = endGame;
     
-    // Override start game to require payment
+    // Override start game with payment
     window.startGame = async function() {
-        if (!window.isWalletConnected || !window.isWalletConnected()) {
-            alert('⚠️ Please connect your wallet first!');
-            return;
-        }
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
         
+        // Show processing
+        const clickedBtn = event ? event.target : startBtn;
+        const originalText = clickedBtn.textContent;
+        clickedBtn.textContent = '⏳ Processing Payment...';
+        clickedBtn.disabled = true;
+        
+        // Request payment
         const paid = await window.payToPlay();
+        
         if (paid) {
+            // Payment successful - start game
             originalStartGame();
+        } else {
+            // Payment failed - restore button
+            clickedBtn.textContent = originalText;
+            clickedBtn.disabled = false;
         }
     };
     
-    // Override end game to check for winners
-    const originalEndGame = endGame;
+    // Override end game to check winners
     window.endGame = function() {
-        if (window.checkWinner) {
+        if (window.checkWinner && typeof score !== 'undefined') {
             window.checkWinner(score);
         }
         originalEndGame();
     };
     
     // Update button handlers
-    document.getElementById('startBtn').addEventListener('click', window.startGame);
-    document.getElementById('restartBtn').addEventListener('click', window.startGame);
+    startBtn.addEventListener('click', window.startGame);
+    restartBtn.addEventListener('click', window.startGame);
 });
 
-// Then keep all your existing game.js code below...
+// Your existing game.js code continues below...
+// (Keep everything else the same)
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -356,4 +373,5 @@ startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
 console.log('✅ Color Match Rush loaded!');
+
 
