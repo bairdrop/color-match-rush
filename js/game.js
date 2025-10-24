@@ -1,3 +1,71 @@
+// ===== WALLET INTEGRATION =====
+// Store original functions
+let originalInit = null;
+let originalEndGame = null;
+
+// Wait for DOM to load
+document.addEventListener('DOMContentLoaded', function() {
+    // Override start button to require payment
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    
+    startBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        // Check wallet connection
+        if (!window.isWalletConnected || !window.isWalletConnected()) {
+            alert('⚠️ Please connect your wallet first!');
+            return;
+        }
+        
+        // Process payment
+        const paymentSuccess = await window.payToPlay();
+        
+        if (paymentSuccess) {
+            // Payment successful, start game
+            startGame();
+        }
+    });
+    
+    restartBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        // Check wallet connection
+        if (!window.isWalletConnected || !window.isWalletConnected()) {
+            alert('⚠️ Please connect your wallet first!');
+            return;
+        }
+        
+        // Process payment for restart
+        const paymentSuccess = await window.payToPlay();
+        
+        if (paymentSuccess) {
+            startGame();
+        }
+    });
+});
+
+// Wrap the original endGame function to check for winners
+function wrapEndGame(originalFunction) {
+    return function() {
+        // Check if player won
+        if (window.rewardWinner && typeof score !== 'undefined') {
+            window.rewardWinner(score);
+        }
+        
+        // Call original endGame
+        originalFunction();
+    };
+}
+
+// Apply wrapper after endGame is defined
+setTimeout(() => {
+    if (typeof endGame !== 'undefined') {
+        const original = endGame;
+        endGame = wrapEndGame(original);
+    }
+}, 100);
+
 // Override startGame function to include payment
 const originalStartGame = startGame;
 
@@ -398,4 +466,5 @@ startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
 console.log('✅ Color Match Rush (20s, Bigger Zone) loaded!');
+
 
