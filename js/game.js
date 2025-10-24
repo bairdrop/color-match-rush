@@ -1,56 +1,12 @@
-// Payment Integration - Add at top of game.js
-let originalStartGame;
-let originalEndGame;
+// ===== PAYMENT CONFIGURATION =====
+const PAYMENT_WALLET = '0x71af9Ed03B216a5dD66889EBd2f4Ec8f3912602B';
+const ENTRY_FEE = '0x9184e72a000'; // 0.00001 ETH in hex
 
-// Wait for page load
-window.addEventListener('DOMContentLoaded', function() {
-    // Store original functions
-    originalStartGame = startGame;
-    originalEndGame = endGame;
-    
-    // Override start game with payment
-    window.startGame = async function() {
-        const startBtn = document.getElementById('startBtn');
-        const restartBtn = document.getElementById('restartBtn');
-        
-        // Show processing
-        const clickedBtn = event ? event.target : startBtn;
-        const originalText = clickedBtn.textContent;
-        clickedBtn.textContent = '⏳ Processing Payment...';
-        clickedBtn.disabled = true;
-        
-        // Request payment
-        const paid = await window.payToPlay();
-        
-        if (paid) {
-            // Payment successful - start game
-            originalStartGame();
-        } else {
-            // Payment failed - restore button
-            clickedBtn.textContent = originalText;
-            clickedBtn.disabled = false;
-        }
-    };
-    
-    // Override end game to check winners
-    window.endGame = function() {
-        if (window.checkWinner && typeof score !== 'undefined') {
-            window.checkWinner(score);
-        }
-        originalEndGame();
-    };
-    
-    // Update button handlers
-    startBtn.addEventListener('click', window.startGame);
-    restartBtn.addEventListener('click', window.startGame);
-});
-
-// Your existing game.js code continues below...
-// (Keep everything else the same)
-
+// ===== CANVAS SETUP =====
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// ===== DOM ELEMENTS =====
 const scoreEl = document.getElementById('score');
 const bestEl = document.getElementById('best');
 const timerEl = document.getElementById('timer');
@@ -61,6 +17,7 @@ const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
 const colorButtons = document.querySelectorAll('.color-btn');
 
+// ===== GAME STATE =====
 let gameRunning = false;
 let score = 0;
 let bestScore = 0;
@@ -68,9 +25,11 @@ let timeLeft = 20;
 let circles = [];
 let particles = [];
 
+// ===== CONSTANTS =====
 const TARGET_ZONE_Y = canvas.height - 110;
 const TARGET_ZONE_HEIGHT = 90;
 
+// ===== COLORS =====
 const COLORS = {
     red: '#e74c3c',
     blue: '#3498db',
@@ -80,6 +39,7 @@ const COLORS = {
 
 const colorNames = Object.keys(COLORS);
 
+// ===== LOAD BEST SCORE =====
 try {
     const saved = localStorage.getItem('colorMatchBest');
     if (saved) {
@@ -88,17 +48,72 @@ try {
     }
 } catch (e) {}
 
+// ===== AUDIO =====
 const audio = {
     correct: new Audio('sounds/correct.mp3'),
     wrong: new Audio('sounds/wrong.mp3'),
     gameOver: new Audio('sounds/gameover.mp3')
 };
 
-Object.values(audio).forEach(sound => {
+Object.values(audio).forEach(function(sound) {
     sound.volume = 0.3;
     sound.addEventListener('error', function() {});
 });
 
+// ===== PAYMENT FUNCTION =====
+async function processPayment() {
+    try {
+        console.log('💰 Requesting payment...');
+        
+        // Get wallet provider (Farcaster provides ethereum)
+        if (!window.ethereum) {
+            alert('No wallet found. Please use Warpcast app.');
+            return false;
+        }
+        
+        const provider = window.ethereum;
+        
+        // Get connected account
+        const accounts = await provider.request({
+            method: 'eth_accounts'
+        });
+        
+        if (!accounts || accounts.length === 0) {
+            alert('No wallet connected. Please connect in Warpcast.');
+            return false;
+        }
+        
+        const userAddress = accounts[0];
+        console.log('👛 User wallet:', userAddress);
+        
+        // Send payment transaction
+        const txHash = await provider.request({
+            method: 'eth_sendTransaction',
+            params: [{
+                from: userAddress,
+                to: PAYMENT_WALLET,
+                value: ENTRY_FEE,
+                gas: '0x5208'
+            }]
+        });
+        
+        console.log('✅ Payment successful! Tx:', txHash);
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Payment error:', error);
+        
+        if (error.code === 4001) {
+            alert('❌ Payment cancelled');
+        } else {
+            alert('❌ Payment failed: ' + (error.message || 'Unknown error'));
+        }
+        
+        return false;
+    }
+}
+
+// ===== DRAW TARGET ZONE =====
 function drawTargetZone() {
     const gradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, canvas.height);
     gradient.addColorStop(0, 'rgba(102, 126, 234, 0.15)');
@@ -135,6 +150,7 @@ function drawTargetZone() {
     ctx.stroke();
 }
 
+// ===== CIRCLE CLASS =====
 class Circle {
     constructor() {
         this.x = Math.random() * (canvas.width - 60) + 30;
@@ -199,6 +215,7 @@ class Circle {
     }
 }
 
+// ===== PARTICLE CLASS =====
 class Particle {
     constructor(x, y, color) {
         this.x = x;
@@ -233,7 +250,7 @@ class Particle {
 
 function createParticles(x, y, color, count) {
     count = count || 15;
-    for (let i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         particles.push(new Particle(x, y, color));
     }
 }
@@ -342,6 +359,7 @@ function endGame() {
 
     if (score >= 100) {
         document.getElementById('prizeSection').classList.remove('hidden');
+        console.log('🏆 Winner! Score:', score);
     }
 
     if (score > bestScore) {
@@ -353,7 +371,7 @@ function endGame() {
     }
 }
 
-function startGame() {
+function actuallyStartGame() {
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
     gameRunning = true;
@@ -362,6 +380,23 @@ function startGame() {
     gameLoop();
 }
 
+// ===== START GAME WITH PAYMENT =====
+async function startGameWithPayment(btn) {
+    const originalText = btn.textContent;
+    btn.textContent = '⏳ Processing Payment...';
+    btn.disabled = true;
+    
+    const paid = await processPayment();
+    
+    if (paid) {
+        actuallyStartGame();
+    } else {
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+// ===== EVENT LISTENERS =====
 colorButtons.forEach(function(btn) {
     btn.addEventListener('click', function() {
         const color = btn.getAttribute('data-color');
@@ -369,9 +404,12 @@ colorButtons.forEach(function(btn) {
     });
 });
 
-startBtn.addEventListener('click', startGame);
-restartBtn.addEventListener('click', startGame);
+startBtn.addEventListener('click', function() {
+    startGameWithPayment(startBtn);
+});
 
-console.log('✅ Color Match Rush loaded!');
+restartBtn.addEventListener('click', function() {
+    startGameWithPayment(restartBtn);
+});
 
-
+console.log('✅ Color Match Rush with payments loaded!');
