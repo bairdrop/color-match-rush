@@ -1,8 +1,9 @@
+
+```javascript
 // ===== FARCASTER SDK INITIALIZATION =====
-// Call ready() to hide splash screen
+// Initialize Farcaster SDK and call ready()
 (async function initializeFarcaster() {
     try {
-        // Check if Farcaster SDK is available
         if (window.FarcasterFrameSDK) {
             const sdk = window.FarcasterFrameSDK;
             await sdk.actions.ready();
@@ -15,111 +16,6 @@
     }
 })();
 
-// ===== YOUR EXISTING GAME CODE BELOW =====
-// (Keep everything else the same)
-
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-// ... rest of your game code ...
-
-// ===== WALLET INTEGRATION =====
-// Store original functions
-let originalInit = null;
-let originalEndGame = null;
-
-// Wait for DOM to load
-document.addEventListener('DOMContentLoaded', function() {
-    // Override start button to require payment
-    const startBtn = document.getElementById('startBtn');
-    const restartBtn = document.getElementById('restartBtn');
-    
-    startBtn.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        // Check wallet connection
-        if (!window.isWalletConnected || !window.isWalletConnected()) {
-            alert('⚠️ Please connect your wallet first!');
-            return;
-        }
-        
-        // Process payment
-        const paymentSuccess = await window.payToPlay();
-        
-        if (paymentSuccess) {
-            // Payment successful, start game
-            startGame();
-        }
-    });
-    
-    restartBtn.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        // Check wallet connection
-        if (!window.isWalletConnected || !window.isWalletConnected()) {
-            alert('⚠️ Please connect your wallet first!');
-            return;
-        }
-        
-        // Process payment for restart
-        const paymentSuccess = await window.payToPlay();
-        
-        if (paymentSuccess) {
-            startGame();
-        }
-    });
-});
-
-// Wrap the original endGame function to check for winners
-function wrapEndGame(originalFunction) {
-    return function() {
-        // Check if player won
-        if (window.rewardWinner && typeof score !== 'undefined') {
-            window.rewardWinner(score);
-        }
-        
-        // Call original endGame
-        originalFunction();
-    };
-}
-
-// Apply wrapper after endGame is defined
-setTimeout(() => {
-    if (typeof endGame !== 'undefined') {
-        const original = endGame;
-        endGame = wrapEndGame(original);
-    }
-}, 100);
-
-// Override startGame function to include payment
-const originalStartGame = startGame;
-
-async function startGame() {
-    // Check wallet connection
-    if (!window.isWalletConnected || !window.isWalletConnected()) {
-        alert('Please connect your wallet first!');
-        return;
-    }
-    
-    // Process payment
-    const paymentSuccess = await window.payToPlay();
-    
-    if (paymentSuccess) {
-        // Start the game
-        originalStartGame();
-    }
-}
-
-// Update endGame to check for winners
-const originalEndGame = endGame;
-
-function endGame() {
-    // Check if player won
-    if (window.rewardWinner) {
-        window.rewardWinner(score);
-    }
-    
-    originalEndGame();
-}
 // ===== CANVAS SETUP =====
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -139,13 +35,13 @@ const colorButtons = document.querySelectorAll('.color-btn');
 let gameRunning = false;
 let score = 0;
 let bestScore = 0;
-let timeLeft = 20; // Changed to 20 seconds
+let timeLeft = 20;
 let circles = [];
 let particles = [];
 
 // ===== CONSTANTS =====
-const TARGET_ZONE_Y = canvas.height - 180; // Moved up to make zone bigger
-const TARGET_ZONE_HEIGHT = 140; // Increased from 80 to 140
+const TARGET_ZONE_Y = canvas.height - 110; // Adjusted for 400px height
+const TARGET_ZONE_HEIGHT = 90;
 
 // ===== COLORS =====
 const COLORS = {
@@ -409,7 +305,7 @@ function handleColorClick(clickedColor) {
 // ===== INITIALIZE GAME =====
 function init() {
     score = 0;
-    timeLeft = 20; // Reset to 20 seconds
+    timeLeft = 20;
     circles = [];
     particles = [];
     scoreEl.textContent = score;
@@ -459,6 +355,11 @@ function endGame() {
     finalScoreEl.textContent = score;
     gameOverScreen.classList.remove('hidden');
 
+    // Check for winner (100+ score)
+    if (score >= 100) {
+        document.getElementById('prizeSection').classList.remove('hidden');
+    }
+
     if (score > bestScore) {
         bestScore = score;
         bestEl.textContent = bestScore;
@@ -490,8 +391,6 @@ startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
 console.log('✅ Color Match Rush (20s, Bigger Zone) loaded!');
+```
 
-
-
-
-
+**Save this as `js/game.js`**
