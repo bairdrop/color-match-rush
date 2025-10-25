@@ -36,4 +36,53 @@
         
         <div id="startScreen" class="overlay">
             <h1>🎨 COLOR MATCH RUSH</h1>
-            <p cl
+            <p class="subtitle">Pay to play and win!</p>
+            
+            <div class="pay-section">
+                <p class="price">💰 Entry: 0.00001 ETH</p>
+                <p class="prize">🏆 Win: 0.00002 ETH (100+ score)</p>
+            </div>
+            
+            <button id="startBtn" class="main-btn">💰 PAY & START (0.00001 ETH)</button>
+            
+            <div class="instructions">
+                <p>🎯 Match colors in zone</p>
+                <p>⏱️ 20 seconds to score</p>
+                <p>✅ Correct = +10 points</p>
+                <p>🏆 100+ = Win 0.00002 ETH!</p>
+            </div>
+        </div>
+        
+        <div id="gameOverScreen" class="overlay hidden">
+            <h1>GAME OVER!</h1>
+            <div class="final-score"><p>Your Score</p><div id="finalScore">0</div></div>
+            <div id="prizeSection" class="prize-won hidden">
+                <p>🎉 YOU WON!</p>
+                <p class="prize-amount">0.00002 ETH</p>
+                <p class="prize-note">Check your wallet!</p>
+            </div>
+            <button id="restartBtn" class="main-btn">🎮 PLAY AGAIN (0.00001 ETH)</button>
+        </div>
+    </div>
+    
+    <!-- Load Farcaster SDK -->
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+        window.farcasterSDK = sdk;
+        
+        // Call ready after a short delay
+        setTimeout(async () => {
+            try {
+                await sdk.actions.ready();
+                console.log('✅ Farcaster SDK ready() called');
+            } catch (error) {
+                console.error('⚠️ SDK ready() error:', error);
+            }
+        }, 500);
+    </script>
+    
+    <!-- Load game -->
+    <script src="js/wallet.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
