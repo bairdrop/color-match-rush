@@ -64,11 +64,6 @@ function goToGamePage() {
     document.getElementById('gamePage').classList.add('active');
 }
 
-function goToLandingPage() {
-    document.getElementById('gamePage').classList.remove('active');
-    document.getElementById('landingPage').classList.add('active');
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('landingStartBtn').addEventListener('click', async function(e) {
         e.preventDefault();
@@ -95,6 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeGame() {
     const canvas = document.getElementById('gameCanvas');
+    
+    // FIX: Set canvas internal resolution to match display size for perfect circles
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    
     const ctx = canvas.getContext('2d');
 
     const scoreEl = document.getElementById('score');
@@ -179,7 +180,7 @@ function initializeGame() {
         constructor() {
             this.x = Math.random() * (canvas.width - 60) + 30;
             this.y = -30;
-            this.radius = 28;
+            this.radius = 25;
             this.color = colorNames[Math.floor(Math.random() * colorNames.length)];
             this.speed = 2 + Math.random() * 2;
             this.toRemove = false;
