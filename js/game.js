@@ -64,6 +64,11 @@ function goToGamePage() {
     document.getElementById('gamePage').classList.add('active');
 }
 
+function goToLandingPage() {
+    document.getElementById('gamePage').classList.remove('active');
+    document.getElementById('landingPage').classList.add('active');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('landingStartBtn').addEventListener('click', async function(e) {
         e.preventDefault();
@@ -112,9 +117,10 @@ function initializeGame() {
     let circles = [];
     let particles = [];
 
-    // BIGGER ZONE
-    const TARGET_ZONE_Y = canvas.height - 130;
-    const TARGET_ZONE_HEIGHT = 120;
+    // BIGGER MATCH ZONE - 60% of canvas height
+    const CANVAS_HEIGHT = canvas.height;
+    const TARGET_ZONE_HEIGHT = Math.floor(CANVAS_HEIGHT * 0.6);
+    const TARGET_ZONE_Y = CANVAS_HEIGHT - TARGET_ZONE_HEIGHT;
 
     const COLORS = {
         red: '#e74c3c',
@@ -145,7 +151,7 @@ function initializeGame() {
     });
 
     function drawTargetZone() {
-        const gradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, canvas.height);
+        const gradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, CANVAS_HEIGHT);
         gradient.addColorStop(0, 'rgba(102, 126, 234, 0.15)');
         gradient.addColorStop(0.5, 'rgba(102, 126, 234, 0.25)');
         gradient.addColorStop(1, 'rgba(102, 126, 234, 0.35)');
@@ -182,8 +188,8 @@ function initializeGame() {
 
         update() {
             this.y += this.speed;
-            this.inTargetZone = (this.y >= TARGET_ZONE_Y && this.y <= canvas.height - 40);
-            if (this.y > canvas.height - 30) {
+            this.inTargetZone = (this.y >= TARGET_ZONE_Y && this.y <= CANVAS_HEIGHT - 40);
+            if (this.y > CANVAS_HEIGHT - 30) {
                 this.toRemove = true;
             }
         }
@@ -409,9 +415,26 @@ function initializeGame() {
         startGameFromClick();
     });
 
-    restartBtn.addEventListener('click', function(e) {
+    restartBtn.addEventListener('click', async function(e) {
         e.preventDefault();
-        startGameFromClick();
+        
+        const btn = this;
+        const originalText = btn.textContent;
+        btn.textContent = '⏳ Processing Payment...';
+        btn.disabled = true;
+        
+        const paid = await processPayment();
+        
+        if (paid) {
+            console.log('✅ Payment successful, playing again');
+            btn.textContent = originalText;
+            btn.disabled = false;
+            startGameFromClick();
+        } else {
+            console.log('❌ Payment failed');
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
     });
 
     console.log('✅ Game initialized after payment');
