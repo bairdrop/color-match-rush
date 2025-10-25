@@ -1,18 +1,77 @@
-// ===== PAYMENT CONFIGURATION =====
+// ===== FARCASTER WALLET INTEGRATION WITH PAYMENT =====
 const PAYMENT_WALLET = '0x71af9Ed03B216a5dD66889EBd2f4Ec8f3912602B';
 const ENTRY_FEE = '0x9184e72a000'; // 0.00001 ETH in hex
 
-// ===== WAIT FOR DOM TO LOAD =====
+// Get Farcaster Ethereum Provider
+async function getFarcasterProvider() {
+    try {
+        if (!window.farcasterSDK) {
+            console.log('SDK not available');
+            return null;
+        }
+        
+        const provider = await window.farcasterSDK.wallet.getEthereumProvider();
+        return provider;
+    } catch (error) {
+        console.error('Provider error:', error);
+        return null;
+    }
+}
+
+// Process Payment
+async function processPayment() {
+    try {
+        console.log('💰 Starting payment process...');
+        
+        const provider = await getFarcasterProvider();
+        if (!provider) {
+            console.log('⚠️ No provider, free play mode');
+            return true;
+        }
+        
+        // Request accounts
+        const accounts = await provider.request({
+            method: 'eth_requestAccounts'
+        });
+        
+        if (!accounts || accounts.length === 0) {
+            return false;
+        }
+        
+        const userAddress = accounts[0];
+        console.log('Account:', userAddress);
+        
+        // Send transaction
+        const tx = await provider.request({
+            method: 'eth_sendTransaction',
+            params: [{
+                from: userAddress,
+                to: PAYMENT_WALLET,
+                value: ENTRY_FEE,
+                gas: '0x5208'
+            }]
+        });
+        
+        console.log('✅ Payment success:', tx);
+        return true;
+    } catch (error) {
+        console.error('Payment error:', error);
+        if (error.code !== 4001) {
+            alert('Payment error: ' + error.message);
+        }
+        return false;
+    }
+}
+
+// ===== GAME CODE =====
 document.addEventListener('DOMContentLoaded', function() {
     initializeGame();
 });
 
 function initializeGame() {
-    // ===== CANVAS SETUP =====
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // ===== DOM ELEMENTS =====
     const scoreEl = document.getElementById('score');
     const bestEl = document.getElementById('best');
     const timerEl = document.getElementById('timer');
@@ -23,7 +82,6 @@ function initializeGame() {
     const restartBtn = document.getElementById('restartBtn');
     const colorButtons = document.querySelectorAll('.color-btn');
 
-    // ===== GAME STATE =====
     let gameRunning = false;
     let score = 0;
     let bestScore = 0;
@@ -31,11 +89,9 @@ function initializeGame() {
     let circles = [];
     let particles = [];
 
-    // ===== CONSTANTS =====
     const TARGET_ZONE_Y = canvas.height - 110;
     const TARGET_ZONE_HEIGHT = 90;
 
-    // ===== COLORS =====
     const COLORS = {
         red: '#e74c3c',
         blue: '#3498db',
@@ -45,7 +101,6 @@ function initializeGame() {
 
     const colorNames = Object.keys(COLORS);
 
-    // ===== LOAD BEST SCORE =====
     try {
         const saved = localStorage.getItem('colorMatchBest');
         if (saved) {
@@ -54,7 +109,6 @@ function initializeGame() {
         }
     } catch (e) {}
 
-    // ===== AUDIO =====
     const audio = {
         correct: new Audio('sounds/correct.mp3'),
         wrong: new Audio('sounds/wrong.mp3'),
@@ -66,7 +120,6 @@ function initializeGame() {
         sound.addEventListener('error', function() {});
     });
 
-    // ===== DRAW TARGET ZONE =====
     function drawTargetZone() {
         const gradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, canvas.height);
         gradient.addColorStop(0, 'rgba(102, 126, 234, 0.15)');
@@ -103,7 +156,6 @@ function initializeGame() {
         ctx.stroke();
     }
 
-    // ===== CIRCLE CLASS =====
     class Circle {
         constructor() {
             this.x = Math.random() * (canvas.width - 60) + 30;
@@ -168,7 +220,6 @@ function initializeGame() {
         }
     }
 
-    // ===== PARTICLE CLASS =====
     class Particle {
         constructor(x, y, color) {
             this.x = x;
@@ -341,27 +392,25 @@ function initializeGame() {
     }
 
     async function startGameWithPayment(btn) {
-        console.log('🎮 START button clicked');
+        console.log('🎮 START clicked');
         
         const originalText = btn.textContent;
-        btn.textContent = '⏳ Processing Payment...';
+        btn.textContent = '⏳ Processing...';
         btn.disabled = true;
         
-        // Use official Farcaster wallet module
-        const paid = await window.walletModule.processPaymentFlow();
+        const paid = await processPayment();
         
         if (paid) {
-            console.log('✅ Payment successful, starting game');
+            console.log('✅ Starting game');
             await new Promise(resolve => setTimeout(resolve, 500));
             startGameFromPayment();
         } else {
-            console.log('❌ Payment failed or cancelled');
+            console.log('❌ Payment failed');
             btn.textContent = originalText;
             btn.disabled = false;
         }
     }
 
-    // ===== EVENT LISTENERS =====
     colorButtons.forEach(function(btn) {
         btn.addEventListener('click', function() {
             const color = btn.getAttribute('data-color');
@@ -371,15 +420,13 @@ function initializeGame() {
 
     startBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        e.stopPropagation();
         startGameWithPayment(startBtn);
     });
 
     restartBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        e.stopPropagation();
         startGameWithPayment(restartBtn);
     });
 
-    console.log('✅ Color Match Rush initialized!');
+    console.log('✅ Game initialized');
 }
