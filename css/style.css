@@ -375,3 +375,147 @@ body {
         font-size: 60px;
     }
 }
+
+/* ===== PAGE SYSTEM ===== */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== LANDING PAGE ===== */
+.hero-section {
+    text-align: center;
+    padding: 30px 0;
+    margin: 20px 0;
+}
+
+.hero-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.hero-section h2 {
+    font-size: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.hero-subtitle {
+    font-size: 16px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.user-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.feature-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.feature-num {
+    min-width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
+}
+
+.feature-text {
+    text-align: left;
+}
+
+.feature-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 3px;
+}
+
+.feature-desc {
+    font-size: 12px;
+    color: #999;
+}
+
+.price-box {
+    background: linear-gradient(135deg, rgba(255, 0, 110, 0.2) 0%, rgba(255, 68, 102, 0.2) 100%);
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid rgba(255, 0, 110, 0.4);
+    text-align: center;
+    margin: 20px 0;
+}
+
+.price-label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.price-amount {
+    font-size: 36px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #ff006e 0%, #ff4466 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 5px;
+}
+
+.price-desc {
+    font-size: 12px;
+    color: #667eea;
+}
+
+.info-text {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    margin-top: 15px;
+    line-height: 1.5;
+}
+
+/* ===== HEADER UPDATE ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
