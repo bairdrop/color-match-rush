@@ -55,9 +55,11 @@ body {
 }
 
 .app-icon {
-    font-size: 60px;
+    width: 80px;
+    height: 80px;
     margin-bottom: 20px;
     display: block;
+    object-fit: contain;
 }
 
 .app-title {
@@ -78,7 +80,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     padding: 40px 20px;
     gap: 20px;
@@ -165,15 +167,10 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 14px;
-    background: linear-gradient(135deg, #A21CAF 0%, #EC4899 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 16px;
     color: white;
     flex-shrink: 0;
     border: 2px solid white;
-    font-size: 16px;
 }
 
 .feature-text {
@@ -389,7 +386,8 @@ body {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 500px) {
     .app-icon {
-        font-size: 50px;
+        width: 70px;
+        height: 70px;
         margin-bottom: 15px;
     }
 
@@ -422,7 +420,8 @@ body {
 
 @media (max-width: 400px) {
     .app-icon {
-        font-size: 40px;
+        width: 60px;
+        height: 60px;
         margin-bottom: 12px;
     }
 
