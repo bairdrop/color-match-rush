@@ -1,6 +1,7 @@
 const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
 const ENTRY_FEE = '0x9184e72a000';
 const GAME_DURATION = 10;
+const CHAIN_ID = '0x2105'; // Base Mainnet (8453 in decimal)
 
 async function getFarcasterProvider() {
     try {
@@ -25,6 +26,54 @@ async function getEthereumProvider() {
     return null;
 }
 
+async function ensureCorrectNetwork(provider) {
+    try {
+        // Check current network
+        const currentChainId = await provider.request({
+            method: 'eth_chainId'
+        });
+        
+        console.log('Current chain:', currentChainId);
+        
+        // If not on Base, switch to Base
+        if (currentChainId !== CHAIN_ID) {
+            try {
+                await provider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: CHAIN_ID }]
+                });
+                console.log('✅ Switched to Base');
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    // Network not added, add it
+                    await provider.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [{
+                            chainId: CHAIN_ID,
+                            chainName: 'Base',
+                            rpcUrls: ['https://mainnet.base.org/'],
+                            nativeCurrency: {
+                                name: 'Ether',
+                                symbol: 'ETH',
+                                decimals: 18
+                            },
+                            blockExplorerUrls: ['https://basescan.org/']
+                        }]
+                    });
+                    console.log('✅ Added Base network');
+                } else {
+                    throw switchError;
+                }
+            }
+        }
+        return true;
+    } catch (error) {
+        console.error('Network switch error:', error);
+        alert('Please switch to Base network in your wallet');
+        return false;
+    }
+}
+
 async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
@@ -41,6 +90,10 @@ async function processPayment() {
             }
         }
         
+        // Ensure correct network
+        const networkOk = await ensureCorrectNetwork(provider);
+        if (!networkOk) return false;
+        
         let accounts;
         try {
             accounts = await provider.request({
@@ -55,7 +108,7 @@ async function processPayment() {
             return false;
         }
         
-        const userAddress = accounts;
+        const userAddress = accounts[0];
         console.log('✅ Connected to:', userAddress);
         
         // Build transaction
@@ -63,8 +116,7 @@ async function processPayment() {
             from: userAddress,
             to: PAYMENT_WALLET,
             value: ENTRY_FEE,
-            gas: '0x5208',
-            gasPrice: undefined, // Let wallet handle
+            data: '0x'
         };
         
         try {
@@ -74,16 +126,14 @@ async function processPayment() {
             });
             
             console.log('✅ Payment successful! Tx:', tx);
-            
-            // Wait a moment for transaction to process
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
             return true;
         } catch (error) {
             console.error('Transaction error:', error);
             if (error.code === 4001) {
                 console.log('User rejected transaction');
             } else {
-                alert('Transaction failed: ' + (error.message || 'Unknown error'));
+                alert('Transaction failed: ' + (error.message || error.code));
             }
             return false;
         }
@@ -125,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeGame() {
     const canvas = document.getElementById('gameCanvas');
     
-    // FIX: Set canvas internal resolution to match display size for perfect circles
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
@@ -152,7 +201,6 @@ function initializeGame() {
     let circles = [];
     let particles = [];
 
-    // BIGGER MATCH ZONE - 60% of canvas height
     const CANVAS_HEIGHT = canvas.height;
     const TARGET_ZONE_HEIGHT = Math.floor(CANVAS_HEIGHT * 0.6);
     const TARGET_ZONE_Y = CANVAS_HEIGHT - TARGET_ZONE_HEIGHT;
