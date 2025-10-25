@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color Match Rush</title>
+    
     <meta property="fc:frame" content="vNext">
     <meta property="fc:frame:image" content="https://color-match-rush.vercel.app/preview.png">
+    <meta property="fc:frame:button:1" content="🎮 Play Game">
+    <meta property="fc:frame:button:1:action" content="link">
+    <meta property="fc:frame:button:1:target" content="https://color-match-rush.vercel.app">
+    
+    <meta property="og:title" content="Color Match Rush">
+    <meta property="og:description" content="Pay 0.00001 ETH to play! Win 0.00002 ETH!">
+    <meta property="og:image" content="https://color-match-rush.vercel.app/preview.png">
+    
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,17 +24,19 @@
             <div class="score-box"><div class="label">BEST</div><div id="best" class="value">0</div></div>
             <div class="score-box"><div class="label">TIME</div><div id="timer" class="value">20</div></div>
         </div>
+        
         <canvas id="gameCanvas" width="400" height="400"></canvas>
+        
         <div id="colorButtons" class="button-container">
             <button class="color-btn" data-color="red" style="background: #e74c3c;"></button>
             <button class="color-btn" data-color="blue" style="background: #3498db;"></button>
             <button class="color-btn" data-color="green" style="background: #2ecc71;"></button>
             <button class="color-btn" data-color="yellow" style="background: #f1c40f;"></button>
         </div>
+        
         <div id="startScreen" class="overlay">
-    <h1>🎨 COLOR MATCH RUSH</h1>
-    <p class="subtitle">Tap the matching color!</p>
-    <button id="startBtn" class="main-btn">START GAME</button>
+            <h1>🎨 COLOR MATCH RUSH</h1>
+            <p class="subtitle">Pay to play and win!</p>
             
             <div class="pay-section">
                 <p class="price">💰 Entry: 0.00001 ETH</p>
@@ -41,6 +52,7 @@
                 <p>🏆 100+ = Win 0.00002 ETH!</p>
             </div>
         </div>
+        
         <div id="gameOverScreen" class="overlay hidden">
             <h1>GAME OVER!</h1>
             <div class="final-score"><p>Your Score</p><div id="finalScore">0</div></div>
@@ -52,13 +64,10 @@
             <button id="restartBtn" class="main-btn">🎮 PLAY AGAIN (0.00001 ETH)</button>
         </div>
     </div>
-    <script src="js/wallet.js"></script>
+    
     <script src="js/game.js"></script>
     <script>
     (function(){try{if(window.sdk){window.sdk.actions.ready()}else{setTimeout(function(){if(window.sdk)window.sdk.actions.ready()},1000)}}catch(e){}})();
     </script>
 </body>
 </html>
-
-
-
