@@ -54,12 +54,15 @@ body {
     text-align: center;
 }
 
+.app-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    display: block;
+}
+
 .app-title {
     font-size: 48px;
-    background: linear-gradient(135deg, #A21CAF 0%, #EC4899 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #FFFFFF;
     font-weight: bold;
     margin-bottom: 15px;
 }
@@ -96,22 +99,33 @@ body {
     padding: 16px;
     font-size: 16px;
     font-weight: bold;
-    background: #7C3AED;
-    color: white;
+    background: white;
+    color: #7C3AED;
     border: none;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin: 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.button-text {
+    background: linear-gradient(135deg, #A21CAF 0%, #EC4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .start-button:hover {
-    background: #6D28D9;
+    background: #F3F4F6;
     transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(124, 58, 237, 0.6);
+    box-shadow: 0 15px 40px rgba(255, 255, 255, 0.5);
 }
 
 .start-button:disabled {
@@ -121,7 +135,7 @@ body {
 }
 
 #landingStartBtn:hover {
-    background: #6D28D9;
+    background: #F3F4F6;
 }
 
 /* ===== FEATURES LIST ===== */
@@ -145,15 +159,21 @@ body {
 .feature-num {
     min-width: 30px;
     height: 30px;
-    background: #7C3AED;
+    background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     font-size: 14px;
+    background: linear-gradient(135deg, #A21CAF 0%, #EC4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     color: white;
     flex-shrink: 0;
+    border: 2px solid white;
+    font-size: 16px;
 }
 
 .feature-text {
@@ -368,6 +388,11 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 500px) {
+    .app-icon {
+        font-size: 50px;
+        margin-bottom: 15px;
+    }
+
     .app-title {
         font-size: 40px;
     }
@@ -396,6 +421,11 @@ body {
 }
 
 @media (max-width: 400px) {
+    .app-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+    }
+
     .app-title {
         font-size: 32px;
     }
