@@ -1,7 +1,6 @@
 const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
 const ENTRY_FEE = '0x9184e72a000';
 const GAME_DURATION = 10;
-const WIN_THRESHOLD = 100;
 
 async function getFarcasterProvider() {
     try {
@@ -37,16 +36,14 @@ async function processPayment() {
         }
         
         const userAddress = accounts;
-        console.log('💳 User address:', userAddress);
         
-        // Transaction with proper data
         const tx = await provider.request({
             method: 'eth_sendTransaction',
             params: [{
                 from: userAddress,
                 to: PAYMENT_WALLET,
-                value: ENTRY_FEE, // 0.00001 ETH
-                data: '0x', // Empty data
+                value: ENTRY_FEE,
+                data: '0x',
                 gas: '0x5208'
             }]
         });
@@ -62,19 +59,12 @@ async function processPayment() {
     }
 }
 
-// ===== PAGE NAVIGATION =====
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
     document.getElementById('gamePage').classList.add('active');
 }
 
-function goToLandingPage() {
-    document.getElementById('gamePage').classList.remove('active');
-    document.getElementById('landingPage').classList.add('active');
-}
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Landing page START button
     document.getElementById('landingStartBtn').addEventListener('click', async function(e) {
         e.preventDefault();
         
@@ -122,8 +112,9 @@ function initializeGame() {
     let circles = [];
     let particles = [];
 
-    const TARGET_ZONE_Y = canvas.height - 110;
-    const TARGET_ZONE_HEIGHT = 90;
+    // BIGGER ZONE
+    const TARGET_ZONE_Y = canvas.height - 130;
+    const TARGET_ZONE_HEIGHT = 120;
 
     const COLORS = {
         red: '#e74c3c',
@@ -173,16 +164,16 @@ function initializeGame() {
         ctx.setLineDash([]);
 
         ctx.fillStyle = 'rgba(102, 126, 234, 0.8)';
-        ctx.font = 'bold 20px Arial';
+        ctx.font = 'bold 16px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('⬇ TAP ZONE ⬇', canvas.width / 2, TARGET_ZONE_Y + 25);
+        ctx.fillText('⬇ TAP ZONE ⬇', canvas.width / 2, TARGET_ZONE_Y + 30);
     }
 
     class Circle {
         constructor() {
             this.x = Math.random() * (canvas.width - 60) + 30;
             this.y = -30;
-            this.radius = 25;
+            this.radius = 28;
             this.color = colorNames[Math.floor(Math.random() * colorNames.length)];
             this.speed = 2 + Math.random() * 2;
             this.toRemove = false;
@@ -388,10 +379,6 @@ function initializeGame() {
         
         gameOverScreen.classList.remove('hidden');
 
-        if (score >= WIN_THRESHOLD) {
-            document.getElementById('prizeSection').classList.remove('hidden');
-        }
-
         if (score > bestScore) {
             bestScore = score;
             bestEl.textContent = bestScore;
@@ -403,7 +390,6 @@ function initializeGame() {
 
     function startGameFromClick() {
         gameOverScreen.classList.add('hidden');
-        document.getElementById('prizeSection').classList.add('hidden');
         
         gameRunning = true;
         init();
