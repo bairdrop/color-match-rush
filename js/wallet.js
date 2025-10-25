@@ -34,7 +34,7 @@ async function requestAccounts(provider) {
             throw new Error('No accounts returned');
         }
         
-        return accounts;
+        return accounts[0];
     } catch (error) {
         console.error('Error requesting accounts:', error);
         
