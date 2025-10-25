@@ -20,7 +20,7 @@ async function getFarcasterProvider() {
 
 async function processPayment() {
     try {
-        console.log('💰 Starting payment...');
+        console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
         const provider = await getFarcasterProvider();
         if (!provider) {
@@ -37,18 +37,21 @@ async function processPayment() {
         }
         
         const userAddress = accounts;
+        console.log('💳 User address:', userAddress);
         
+        // Transaction with proper data
         const tx = await provider.request({
             method: 'eth_sendTransaction',
             params: [{
                 from: userAddress,
                 to: PAYMENT_WALLET,
-                value: ENTRY_FEE,
+                value: ENTRY_FEE, // 0.00001 ETH
+                data: '0x', // Empty data
                 gas: '0x5208'
             }]
         });
         
-        console.log('✅ Payment success:', tx);
+        console.log('✅ Payment successful! Tx:', tx);
         return true;
     } catch (error) {
         console.error('Payment error:', error);
@@ -59,8 +62,40 @@ async function processPayment() {
     }
 }
 
+// ===== PAGE NAVIGATION =====
+function goToGamePage() {
+    document.getElementById('landingPage').classList.remove('active');
+    document.getElementById('gamePage').classList.add('active');
+}
+
+function goToLandingPage() {
+    document.getElementById('gamePage').classList.remove('active');
+    document.getElementById('landingPage').classList.add('active');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    initializeGame();
+    // Landing page START button
+    document.getElementById('landingStartBtn').addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const btn = this;
+        const originalText = btn.textContent;
+        btn.textContent = '⏳ Processing...';
+        btn.disabled = true;
+        
+        const paid = await processPayment();
+        
+        if (paid) {
+            console.log('✅ Payment done, going to game page');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            goToGamePage();
+            initializeGame();
+        } else {
+            console.log('❌ Payment cancelled');
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    });
 });
 
 function initializeGame() {
@@ -73,7 +108,7 @@ function initializeGame() {
     const finalScoreEl = document.getElementById('finalScore');
     const gamesPlayedEl = document.getElementById('gamesPlayed');
     const lastScoreEl = document.getElementById('lastScore');
-    const startBtn = document.getElementById('startBtn');
+    const gameStartBtn = document.getElementById('gameStartBtn');
     const restartBtn = document.getElementById('restartBtn');
     const colorButtons = document.querySelectorAll('.color-btn');
     const gameOverScreen = document.getElementById('gameOverScreen');
@@ -366,7 +401,7 @@ function initializeGame() {
         }
     }
 
-    function startGameFromPayment() {
+    function startGameFromClick() {
         gameOverScreen.classList.add('hidden');
         document.getElementById('prizeSection').classList.add('hidden');
         
@@ -376,26 +411,6 @@ function initializeGame() {
         gameLoop();
     }
 
-    async function startGameWithPayment(btn) {
-        console.log('🎮 START clicked');
-        
-        const originalText = btn.textContent;
-        btn.textContent = '⏳ ...';
-        btn.disabled = true;
-        
-        const paid = await processPayment();
-        
-        if (paid) {
-            console.log('✅ Starting game');
-            await new Promise(resolve => setTimeout(resolve, 500));
-            startGameFromPayment();
-        } else {
-            console.log('❌ Payment failed');
-            btn.textContent = originalText;
-            btn.disabled = false;
-        }
-    }
-
     colorButtons.forEach(function(btn) {
         btn.addEventListener('click', function() {
             const color = btn.getAttribute('data-color');
@@ -403,15 +418,15 @@ function initializeGame() {
         });
     });
 
-    startBtn.addEventListener('click', function(e) {
+    gameStartBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        startGameWithPayment(startBtn);
+        startGameFromClick();
     });
 
     restartBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        startGameWithPayment(restartBtn);
+        startGameFromClick();
     });
 
-    console.log('✅ Game ready');
+    console.log('✅ Game initialized after payment');
 }
