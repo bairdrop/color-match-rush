@@ -66,55 +66,6 @@ function initializeGame() {
         sound.addEventListener('error', function() {});
     });
 
-    // ===== PAYMENT FUNCTION =====
-    async function processPayment() {
-        try {
-            if (!window.ethereum) {
-                console.log('⚠️ No wallet provider - Preview mode');
-                return true;
-            }
-            
-            console.log('💰 Requesting payment...');
-            const provider = window.ethereum;
-            
-            const accounts = await provider.request({
-                method: 'eth_accounts'
-            });
-            
-            if (!accounts || accounts.length === 0) {
-                alert('Please connect wallet in Warpcast');
-                return false;
-            }
-            
-            const userAddress = accounts[0];
-            console.log('👛 User wallet:', userAddress);
-            
-            const txHash = await provider.request({
-                method: 'eth_sendTransaction',
-                params: [{
-                    from: userAddress,
-                    to: PAYMENT_WALLET,
-                    value: ENTRY_FEE,
-                    gas: '0x5208'
-                }]
-            });
-            
-            console.log('✅ Payment successful! Tx:', txHash);
-            return true;
-            
-        } catch (error) {
-            console.error('❌ Payment error:', error);
-            
-            if (error.code === 4001) {
-                alert('❌ Payment cancelled');
-            } else {
-                alert('❌ Payment failed: ' + (error.message || 'Unknown error'));
-            }
-            
-            return false;
-        }
-    }
-
     // ===== DRAW TARGET ZONE =====
     function drawTargetZone() {
         const gradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, canvas.height);
@@ -358,7 +309,6 @@ function initializeGame() {
 
         finalScoreEl.textContent = score;
         
-        // Hide start screen, show game over
         startScreen.style.display = 'none';
         startScreen.classList.add('hidden');
         gameOverScreen.classList.remove('hidden');
@@ -379,13 +329,11 @@ function initializeGame() {
     }
 
     function startGameFromPayment() {
-        // Hide start screen
         startScreen.style.display = 'none';
         startScreen.classList.add('hidden');
         gameOverScreen.classList.add('hidden');
         gameOverScreen.style.display = 'none';
         
-        // Start game
         gameRunning = true;
         init();
         startTimer();
@@ -393,20 +341,21 @@ function initializeGame() {
     }
 
     async function startGameWithPayment(btn) {
-        console.log('🎮 Start button clicked!');
+        console.log('🎮 START button clicked');
         
         const originalText = btn.textContent;
-        btn.textContent = '⏳ Processing...';
+        btn.textContent = '⏳ Processing Payment...';
         btn.disabled = true;
         
-        const paid = await processPayment();
+        // Use official Farcaster wallet module
+        const paid = await window.walletModule.processPaymentFlow();
         
         if (paid) {
-            console.log('✅ Payment confirmed, starting game...');
+            console.log('✅ Payment successful, starting game');
             await new Promise(resolve => setTimeout(resolve, 500));
             startGameFromPayment();
         } else {
-            console.log('❌ Payment failed, restoring button...');
+            console.log('❌ Payment failed or cancelled');
             btn.textContent = originalText;
             btn.disabled = false;
         }
@@ -420,19 +369,15 @@ function initializeGame() {
         });
     });
 
-    // Single event listener for START button
     startBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('👆 START button clicked');
         startGameWithPayment(startBtn);
     });
 
-    // Single event listener for RESTART button
     restartBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('👆 RESTART button clicked');
         startGameWithPayment(restartBtn);
     });
 
