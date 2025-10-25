@@ -1,10 +1,8 @@
-// ===== PAYMENT CONFIGURATION =====
 const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
-const ENTRY_FEE = '0x9184e72a000'; // 0.00001 ETH in hex
-const GAME_DURATION = 10; // 10 seconds
-const WIN_THRESHOLD = 100; // Score needed to win
+const ENTRY_FEE = '0x9184e72a000';
+const GAME_DURATION = 10;
+const WIN_THRESHOLD = 100;
 
-// Get Farcaster Ethereum Provider
 async function getFarcasterProvider() {
     try {
         if (!window.farcasterSDK) {
@@ -20,7 +18,6 @@ async function getFarcasterProvider() {
     }
 }
 
-// Process Payment
 async function processPayment() {
     try {
         console.log('💰 Starting payment...');
@@ -62,7 +59,6 @@ async function processPayment() {
     }
 }
 
-// ===== GAME INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
     initializeGame();
 });
