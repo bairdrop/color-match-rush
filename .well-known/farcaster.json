@@ -4,8 +4,9 @@
     "payload": "eyJkb21haW4iOiJjb2xvci1tYXRjaC1ydXNoLnZlcmNlbC5hcHAifQ",
     "signature": "kdz/VvS+w61SEyrauYHEUybNNf/OL+OoTi5ZVhnTonYmpnnHiNLPrFfFI5C+g3EYJChafvLyxe9FMjG2LUER9Rs="
   }
-}
-
-  "baseBuilder": {
+      "baseBuilder": {
     "ownerAddress": "0x9A1D81Db96202D1F3373aBA39b9901520ca1b4cd"
   }
+}
+
+
