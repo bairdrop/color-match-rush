@@ -18,16 +18,8 @@
             <div class="header">
                 <div class="header-title">
                     <h1>🎨 COLOR MATCH RUSH</h1>
-                    <p class="version">v1.0</p>
                 </div>
                 <div class="user-avatar-small">🎮</div>
-            </div>
-
-            <!-- Hero Section -->
-            <div class="hero-section">
-                <div class="hero-icon">🎯</div>
-                <h2>Fast Arcade Action</h2>
-                <p class="hero-subtitle">Match colors before time runs out!</p>
             </div>
 
             <!-- Features List -->
@@ -49,17 +41,10 @@
                 <div class="feature-item">
                     <span class="feature-num">3</span>
                     <div class="feature-text">
-                        <p class="feature-title">💰 Win Rewards</p>
-                        <p class="feature-desc">Score 100+ to win 0.00002 ETH</p>
+                        <p class="feature-title">💎 Compete & Win</p>
+                        <p class="feature-desc">Challenge yourself with fast gameplay</p>
                     </div>
                 </div>
-            </div>
-
-            <!-- Price Box -->
-            <div class="price-box">
-                <p class="price-label">ENTRY FEE</p>
-                <p class="price-amount">0.00001 ETH</p>
-                <p class="price-desc">~$0.03 USD</p>
             </div>
 
             <!-- Start Button -->
@@ -67,7 +52,7 @@
 
             <!-- Info Text -->
             <p class="info-text">
-                Click START to proceed to payment. Your wallet will be charged 0.00001 ETH to play one round.
+                Click START to begin. Pay 0.00001 ETH to play one round.
             </p>
         </div>
 
@@ -89,18 +74,6 @@
                 </div>
             </div>
 
-            <!-- Game Canvas -->
-            <div class="game-section">
-                <canvas id="gameCanvas" width="400" height="350"></canvas>
-                
-                <div id="colorButtons" class="button-container">
-                    <button class="color-btn" data-color="red" style="background: #e74c3c;"></button>
-                    <button class="color-btn" data-color="blue" style="background: #3498db;"></button>
-                    <button class="color-btn" data-color="green" style="background: #2ecc71;"></button>
-                    <button class="color-btn" data-color="yellow" style="background: #f1c40f;"></button>
-                </div>
-            </div>
-
             <!-- Score & Timer Display -->
             <div class="score-timer">
                 <div class="score-display">
@@ -113,6 +86,19 @@
                 </div>
             </div>
 
+            <!-- Game Canvas (BIGGER) -->
+            <div class="game-section">
+                <canvas id="gameCanvas" width="400" height="400"></canvas>
+            </div>
+
+            <!-- Color Buttons -->
+            <div id="colorButtons" class="button-container">
+                <button class="color-btn" data-color="red" style="background: #e74c3c;"></button>
+                <button class="color-btn" data-color="blue" style="background: #3498db;"></button>
+                <button class="color-btn" data-color="green" style="background: #2ecc71;"></button>
+                <button class="color-btn" data-color="yellow" style="background: #f1c40f;"></button>
+            </div>
+
             <!-- Start Game Button -->
             <button id="gameStartBtn" class="start-button">▶ START GAME</button>
         </div>
@@ -123,12 +109,6 @@
             <div class="final-score">
                 <p class="label">Your Score</p>
                 <div class="score-value" id="finalScore">0</div>
-            </div>
-            
-            <div id="prizeSection" class="prize-won hidden">
-                <p class="prize-title">🎉 YOU WON!</p>
-                <p class="prize-amount">0.00002 ETH</p>
-                <p class="prize-note">Check your wallet!</p>
             </div>
             
             <button id="restartBtn" class="start-button">▶ PLAY AGAIN</button>
@@ -154,4 +134,3 @@
     <script src="js/game.js"></script>
 </body>
 </html>
-
