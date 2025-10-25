@@ -358,7 +358,7 @@ function initializeGame() {
 
         finalScoreEl.textContent = score;
         
-        // Properly hide start screen and show game over
+        // Hide start screen, show game over
         startScreen.style.display = 'none';
         startScreen.classList.add('hidden');
         gameOverScreen.classList.remove('hidden');
@@ -379,14 +379,11 @@ function initializeGame() {
     }
 
     function startGameFromPayment() {
-        // FORCE hide start screen
-        startScreen.style.display = 'none !important';
+        // Hide start screen
+        startScreen.style.display = 'none';
         startScreen.classList.add('hidden');
-        
-        // Clear game over screen
-        gameOverScreen.style.display = 'none';
         gameOverScreen.classList.add('hidden');
-        document.getElementById('prizeSection').classList.add('hidden');
+        gameOverScreen.style.display = 'none';
         
         // Start game
         gameRunning = true;
@@ -403,7 +400,6 @@ function initializeGame() {
         const paid = await processPayment();
         
         if (paid) {
-            // Wait for Farcaster to process
             await new Promise(resolve => setTimeout(resolve, 500));
             startGameFromPayment();
         } else {
@@ -412,7 +408,7 @@ function initializeGame() {
         }
     }
 
-    // ===== EVENT LISTENERS (AFTER DOM IS READY) =====
+    // ===== EVENT LISTENERS =====
     colorButtons.forEach(function(btn) {
         btn.addEventListener('click', function() {
             const color = btn.getAttribute('data-color');
