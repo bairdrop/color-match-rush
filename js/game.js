@@ -17,44 +17,78 @@ async function getFarcasterProvider() {
     }
 }
 
+// Fallback for desktop wallets
+async function getEthereumProvider() {
+    if (window.ethereum) {
+        return window.ethereum;
+    }
+    return null;
+}
+
 async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        const provider = await getFarcasterProvider();
+        // Try Farcaster provider first (mobile)
+        let provider = await getFarcasterProvider();
+        
+        // Fallback to desktop wallet (ethereum object)
         if (!provider) {
-            console.log('⚠️ No provider, free mode');
-            return true;
+            provider = await getEthereumProvider();
+            if (!provider) {
+                console.log('⚠️ No provider available');
+                return true;
+            }
         }
         
-        const accounts = await provider.request({
-            method: 'eth_requestAccounts'
-        });
+        let accounts;
+        try {
+            accounts = await provider.request({
+                method: 'eth_requestAccounts'
+            });
+        } catch (error) {
+            console.error('Account request error:', error);
+            return false;
+        }
         
         if (!accounts || accounts.length === 0) {
             return false;
         }
         
         const userAddress = accounts;
+        console.log('✅ Connected to:', userAddress);
         
-        const tx = await provider.request({
-            method: 'eth_sendTransaction',
-            params: [{
-                from: userAddress,
-                to: PAYMENT_WALLET,
-                value: ENTRY_FEE,
-                data: '0x',
-                gas: '0x5208'
-            }]
-        });
+        // Build transaction
+        const txParams = {
+            from: userAddress,
+            to: PAYMENT_WALLET,
+            value: ENTRY_FEE,
+            gas: '0x5208',
+            gasPrice: undefined, // Let wallet handle
+        };
         
-        console.log('✅ Payment successful! Tx:', tx);
-        return true;
-    } catch (error) {
-        console.error('Payment error:', error);
-        if (error.code !== 4001) {
-            alert('Payment error: ' + error.message);
+        try {
+            const tx = await provider.request({
+                method: 'eth_sendTransaction',
+                params: [txParams]
+            });
+            
+            console.log('✅ Payment successful! Tx:', tx);
+            
+            // Wait a moment for transaction to process
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return true;
+        } catch (error) {
+            console.error('Transaction error:', error);
+            if (error.code === 4001) {
+                console.log('User rejected transaction');
+            } else {
+                alert('Transaction failed: ' + (error.message || 'Unknown error'));
+            }
+            return false;
         }
+    } catch (error) {
+        console.error('Payment flow error:', error);
         return false;
     }
 }
