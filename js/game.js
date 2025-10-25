@@ -1,6 +1,8 @@
-// ===== FARCASTER WALLET INTEGRATION WITH PAYMENT =====
-const PAYMENT_WALLET = '0x71af9Ed03B216a5dD66889EBd2f4Ec8f3912602B';
+// ===== PAYMENT CONFIGURATION =====
+const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
 const ENTRY_FEE = '0x9184e72a000'; // 0.00001 ETH in hex
+const GAME_DURATION = 10; // 10 seconds
+const WIN_THRESHOLD = 100; // Score needed to win
 
 // Get Farcaster Ethereum Provider
 async function getFarcasterProvider() {
@@ -21,15 +23,14 @@ async function getFarcasterProvider() {
 // Process Payment
 async function processPayment() {
     try {
-        console.log('💰 Starting payment process...');
+        console.log('💰 Starting payment...');
         
         const provider = await getFarcasterProvider();
         if (!provider) {
-            console.log('⚠️ No provider, free play mode');
+            console.log('⚠️ No provider, free mode');
             return true;
         }
         
-        // Request accounts
         const accounts = await provider.request({
             method: 'eth_requestAccounts'
         });
@@ -38,10 +39,8 @@ async function processPayment() {
             return false;
         }
         
-        const userAddress = accounts[0];
-        console.log('Account:', userAddress);
+        const userAddress = accounts;
         
-        // Send transaction
         const tx = await provider.request({
             method: 'eth_sendTransaction',
             params: [{
@@ -63,7 +62,7 @@ async function processPayment() {
     }
 }
 
-// ===== GAME CODE =====
+// ===== GAME INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
     initializeGame();
 });
@@ -76,16 +75,19 @@ function initializeGame() {
     const bestEl = document.getElementById('best');
     const timerEl = document.getElementById('timer');
     const finalScoreEl = document.getElementById('finalScore');
-    const startScreen = document.getElementById('startScreen');
-    const gameOverScreen = document.getElementById('gameOverScreen');
+    const gamesPlayedEl = document.getElementById('gamesPlayed');
+    const lastScoreEl = document.getElementById('lastScore');
     const startBtn = document.getElementById('startBtn');
     const restartBtn = document.getElementById('restartBtn');
     const colorButtons = document.querySelectorAll('.color-btn');
+    const gameOverScreen = document.getElementById('gameOverScreen');
 
     let gameRunning = false;
     let score = 0;
     let bestScore = 0;
-    let timeLeft = 20;
+    let lastScore = 0;
+    let gamesPlayed = 0;
+    let timeLeft = GAME_DURATION;
     let circles = [];
     let particles = [];
 
@@ -143,17 +145,6 @@ function initializeGame() {
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('⬇ TAP ZONE ⬇', canvas.width / 2, TARGET_ZONE_Y + 25);
-        
-        ctx.font = '14px Arial';
-        ctx.fillStyle = 'rgba(102, 126, 234, 0.6)';
-        ctx.fillText('Match color when circle is here!', canvas.width / 2, TARGET_ZONE_Y + 50);
-
-        ctx.strokeStyle = '#667eea';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height - 40);
-        ctx.lineTo(canvas.width, canvas.height - 40);
-        ctx.stroke();
     }
 
     class Circle {
@@ -319,7 +310,7 @@ function initializeGame() {
 
     function init() {
         score = 0;
-        timeLeft = 20;
+        timeLeft = GAME_DURATION;
         circles = [];
         particles = [];
         scoreEl.textContent = score;
@@ -358,16 +349,16 @@ function initializeGame() {
         clearInterval(timerInterval);
         audio.gameOver.play().catch(function() {});
 
+        gamesPlayed++;
+        lastScore = score;
+        gamesPlayedEl.textContent = gamesPlayed;
+        lastScoreEl.textContent = lastScore;
         finalScoreEl.textContent = score;
         
-        startScreen.style.display = 'none';
-        startScreen.classList.add('hidden');
         gameOverScreen.classList.remove('hidden');
-        gameOverScreen.style.display = 'flex';
 
-        if (score >= 100) {
+        if (score >= WIN_THRESHOLD) {
             document.getElementById('prizeSection').classList.remove('hidden');
-            console.log('🏆 Winner! Score:', score);
         }
 
         if (score > bestScore) {
@@ -380,10 +371,8 @@ function initializeGame() {
     }
 
     function startGameFromPayment() {
-        startScreen.style.display = 'none';
-        startScreen.classList.add('hidden');
         gameOverScreen.classList.add('hidden');
-        gameOverScreen.style.display = 'none';
+        document.getElementById('prizeSection').classList.add('hidden');
         
         gameRunning = true;
         init();
@@ -395,7 +384,7 @@ function initializeGame() {
         console.log('🎮 START clicked');
         
         const originalText = btn.textContent;
-        btn.textContent = '⏳ Processing...';
+        btn.textContent = '⏳ ...';
         btn.disabled = true;
         
         const paid = await processPayment();
@@ -428,5 +417,5 @@ function initializeGame() {
         startGameWithPayment(restartBtn);
     });
 
-    console.log('✅ Game initialized');
+    console.log('✅ Game ready');
 }
