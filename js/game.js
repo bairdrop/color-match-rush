@@ -63,33 +63,26 @@ Object.values(audio).forEach(function(sound) {
 // ===== PAYMENT FUNCTION =====
 async function processPayment() {
     try {
-        // Check if wallet provider exists
         if (!window.ethereum) {
-            console.log('⚠️ No wallet provider - Preview/Testing mode');
-            console.log('💡 Payment will work in real Warpcast!');
-            // Allow play in preview mode
+            console.log('⚠️ No wallet provider - Preview mode');
             return true;
         }
         
         console.log('💰 Requesting payment...');
-        
         const provider = window.ethereum;
         
-        // Get connected account
         const accounts = await provider.request({
             method: 'eth_accounts'
         });
         
         if (!accounts || accounts.length === 0) {
-            console.log('⚠️ No account connected');
             alert('Please connect wallet in Warpcast');
             return false;
         }
         
-        const userAddress = accounts[0];
+        const userAddress = accounts;
         console.log('👛 User wallet:', userAddress);
         
-        // Send payment transaction
         const txHash = await provider.request({
             method: 'eth_sendTransaction',
             params: [{
@@ -376,6 +369,7 @@ function endGame() {
 
 function actuallyStartGame() {
     startScreen.classList.add('hidden');
+    startScreen.style.display = 'none';
     gameOverScreen.classList.add('hidden');
     gameRunning = true;
     init();
@@ -383,7 +377,6 @@ function actuallyStartGame() {
     gameLoop();
 }
 
-// ===== START GAME WITH PAYMENT =====
 async function startGameWithPayment(btn) {
     const originalText = btn.textContent;
     btn.textContent = '⏳ Processing...';
@@ -399,7 +392,6 @@ async function startGameWithPayment(btn) {
     }
 }
 
-// ===== EVENT LISTENERS =====
 colorButtons.forEach(function(btn) {
     btn.addEventListener('click', function() {
         const color = btn.getAttribute('data-color');
