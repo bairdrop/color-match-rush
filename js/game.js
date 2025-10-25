@@ -30,6 +30,7 @@ function initializeGame() {
     let timeLeft = 20;
     let circles = [];
     let particles = [];
+    let autoStartTimeout = null;
 
     // ===== CONSTANTS =====
     const TARGET_ZONE_Y = canvas.height - 110;
@@ -64,6 +65,32 @@ function initializeGame() {
     Object.values(audio).forEach(function(sound) {
         sound.volume = 0.3;
         sound.addEventListener('error', function() {});
+    });
+
+    // ===== AUTO-START SPLASH SCREEN (3 seconds) =====
+    function autoStartSplash() {
+        console.log('⏱️ Auto-start splash in 3 seconds...');
+        autoStartTimeout = setTimeout(function() {
+            console.log('⏱️ Auto-hiding splash screen');
+            hideSplashScreen();
+        }, 3000);
+    }
+
+    // ===== HIDE SPLASH SCREEN =====
+    function hideSplashScreen() {
+        clearTimeout(autoStartTimeout);
+        startScreen.style.display = 'none !important';
+        startScreen.classList.add('hidden');
+        gameOverScreen.classList.add('hidden');
+        gameOverScreen.style.display = 'none';
+    }
+
+    // Start auto-hide timer immediately
+    autoStartSplash();
+
+    // Cancel auto-start if user clicks START button
+    startBtn.addEventListener('click', function() {
+        clearTimeout(autoStartTimeout);
     });
 
     // ===== PAYMENT FUNCTION =====
@@ -380,13 +407,7 @@ function initializeGame() {
 
     function startGameFromPayment() {
         // FORCE hide start screen
-        startScreen.style.display = 'none !important';
-        startScreen.classList.add('hidden');
-        
-        // Clear game over screen
-        gameOverScreen.style.display = 'none';
-        gameOverScreen.classList.add('hidden');
-        document.getElementById('prizeSection').classList.add('hidden');
+        hideSplashScreen();
         
         // Start game
         gameRunning = true;
@@ -428,5 +449,5 @@ function initializeGame() {
         startGameWithPayment(restartBtn);
     });
 
-    console.log('✅ Color Match Rush initialized!');
+    console.log('✅ Color Match Rush initialized with auto-start!');
 }
