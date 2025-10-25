@@ -1,4 +1,3 @@
-/* ===== RESET & BASE STYLES ===== */
 * {
     margin: 0;
     padding: 0;
@@ -7,86 +6,152 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3f 50%, #0f0f23 100%);
+    color: #fff;
     min-height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
-/* ===== GAME CONTAINER ===== */
-.game-container {
-    position: relative;
+.app-container {
     width: 100%;
     max-width: 450px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 20px;
+    margin: 0 auto;
     padding: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-/* ===== SCORE DISPLAY ===== */
-.score-display {
+    background: linear-gradient(180deg, rgba(15, 15, 35, 0.95) 0%, rgba(26, 26, 63, 0.95) 100%);
+    min-height: 100vh;
     display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
-    gap: 10px;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.score-box {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 15px 20px;
-    border-radius: 15px;
-    text-align: center;
-    flex: 1;
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+/* ===== HEADER ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
 }
 
-.label {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 12px;
+.header-title h1 {
+    font-size: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-weight: bold;
     margin-bottom: 5px;
 }
 
-.value {
-    color: white;
-    font-size: 28px;
-    font-weight: bold;
+.version {
+    font-size: 12px;
+    color: #667eea;
 }
 
-/* ===== CANVAS ===== */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.user-status {
+    text-align: right;
+}
+
+.username {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 2px;
+}
+
+.status {
+    font-size: 11px;
+}
+
+.status.connected {
+    color: #2ecc71;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===== GAME SECTION ===== */
+.game-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
 #gameCanvas {
     width: 100%;
-    height: auto;
-    border-radius: 15px;
-    background: linear-gradient(to bottom, #ffffff, #f0f0f0);
-    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
-    display: block;
-    margin-bottom: 20px;
+    max-width: 400px;
+    height: 350px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
 }
 
-/* ===== COLOR BUTTONS ===== */
 .button-container {
     display: flex;
-    justify-content: space-around;
-    gap: 10px;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .color-btn {
-    width: 80px;
-    height: 80px;
-    border: 4px solid white;
+    width: 70px;
+    height: 70px;
+    border: 3px solid white;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .color-btn:hover {
     transform: scale(1.1);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .color-btn:active {
@@ -116,7 +181,100 @@ body {
     75% { transform: translateX(10px); }
 }
 
-/* ===== OVERLAY SCREENS ===== */
+/* ===== SCORE & TIMER ===== */
+.score-timer {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.score-display,
+.timer-display {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    padding: 15px 25px;
+    border-radius: 10px;
+    border: 1px solid rgba(102, 126, 234, 0.4);
+    text-align: center;
+}
+
+.score-display .label,
+.timer-display .label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.score-display .value,
+.timer-display .value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+/* ===== START BUTTON ===== */
+.start-button {
+    width: 100%;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #ff006e 0%, #ff4466 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(255, 0, 110, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.start-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 0, 110, 0.6);
+}
+
+.start-button:active {
+    transform: translateY(-1px);
+}
+
+.start-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===== FEATURES SECTION ===== */
+.features-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.feature {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    text-align: center;
+}
+
+.feature-icon {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.feature p {
+    font-size: 13px;
+    color: #999;
+    line-height: 1.3;
+}
+
+/* ===== OVERLAY ===== */
 .overlay {
     position: fixed;
     top: 0;
@@ -131,238 +289,49 @@ body {
     z-index: 1000;
     padding: 20px;
     box-sizing: border-box;
-    text-align: center;
 }
 
 .overlay.hidden {
     display: none !important;
-    z-index: -1;
-}
-
-.hidden {
-    display: none !important;
 }
 
 .overlay h1 {
-    color: white;
-    font-size: 48px;
-    margin-bottom: 15px;
-    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-}
-
-.overlay .subtitle {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 20px;
+    font-size: 42px;
     margin-bottom: 30px;
+    background: linear-gradient(135deg, #ff006e 0%, #667eea 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* ===== PAYMENT SECTION ===== */
-.pay-section {
-    margin: 25px 0;
-    padding: 25px;
-    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-    border-radius: 15px;
-    color: white;
-    box-shadow: 0 5px 20px rgba(243, 156, 18, 0.4);
-}
-
-.price {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.prize {
-    font-size: 16px;
-    margin: 8px 0;
-}
-
-/* ===== BUTTONS ===== */
-.main-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 18px 40px;
-    font-size: 20px;
-    font-weight: bold;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-    margin: 20px 0;
-}
-
-.main-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
-}
-
-.main-btn:active {
-    transform: translateY(-1px);
-}
-
-.main-btn:disabled {
-    background: #95a5a6;
-    cursor: not-allowed;
-    opacity: 0.6;
-    transform: none;
-}
-
-/* ===== INSTRUCTIONS ===== */
-.instructions {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 16px;
-    line-height: 2;
-    margin-top: 20px;
-}
-
-.instructions p {
-    margin: 8px 0;
-}
-
-/* ===== GAME OVER SCREEN ===== */
 .final-score {
     margin: 30px 0;
+    text-align: center;
 }
 
-.final-score p {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 20px;
+.final-score .label {
+    font-size: 16px;
+    color: #999;
     margin-bottom: 15px;
+    display: block;
 }
 
-#finalScore {
-    color: white;
+.score-value {
     font-size: 80px;
     font-weight: bold;
-    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* ===== PRIZE WON ===== */
+/* ===== PRIZE SECTION ===== */
 .prize-won {
     margin: 20px 0;
     padding: 25px;
     background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
     border-radius: 15px;
     color: white;
-    box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4);
-    animation: prizeAppear 0.5s ease;
-}
-
-@keyframes prizeAppear {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.prize-won p {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 10px 0;
-}
-
-.prize-amount {
-    font-size: 32px;
-    font-weight: bold;
-    margin: 15px 0;
-}
-
-.prize-note {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 500px) {
-    .game-container {
-        padding: 15px;
-        border-radius: 15px;
-    }
-
-    .overlay h1 {
-        font-size: 36px;
-    }
-
-    .color-btn {
-        width: 70px;
-        height: 70px;
-    }
-
-    .main-btn {
-        padding: 15px 30px;
-        font-size: 18px;
-    }
-
-    #finalScore {
-        font-size: 60px;
-    }
-}
-
-@media (max-width: 400px) {
-    .score-box {
-        padding: 10px 15px;
-    }
-
-    .value {
-        font-size: 24px;
-    }
-
-    .color-btn {
-        width: 60px;
-        height: 60px;
-    }
-}
-
-/* ===== LOADING ANIMATION ===== */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.game-container {
-    animation: fadeIn 0.5s ease;
-}
-
-/* Payment Section */
-.pay-section {
-    margin: 25px 0;
-    padding: 25px;
-    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-    border-radius: 15px;
-    color: white;
-    box-shadow: 0 5px 20px rgba(243, 156, 18, 0.4);
-}
-
-.price {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.prize {
-    font-size: 16px;
-    margin: 8px 0;
-}
-
-/* Prize Won */
-.prize-won {
-    margin: 20px 0;
-    padding: 25px;
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-    border-radius: 15px;
-    color: white;
-    box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4);
     animation: prizeAppear 0.5s ease;
 }
 
@@ -371,6 +340,12 @@ body {
     100% { transform: scale(1); opacity: 1; }
 }
 
+.prize-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
 .prize-amount {
     font-size: 32px;
     font-weight: bold;
@@ -382,24 +357,30 @@ body {
     opacity: 0.9;
 }
 
-/* Overlay */
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 20px;
-    box-sizing: border-box;
-}
+/* ===== RESPONSIVE ===== */
+@media (max-width: 500px) {
+    .app-container {
+        padding: 15px;
+    }
 
-.overlay.hidden {
-    display: none !important;
-}
+    .header-title h1 {
+        font-size: 20px;
+    }
 
+    .stat-value {
+        font-size: 24px;
+    }
+
+    #gameCanvas {
+        height: 300px;
+    }
+
+    .color-btn {
+        width: 60px;
+        height: 60px;
+    }
+
+    .score-value {
+        font-size: 60px;
+    }
+}
