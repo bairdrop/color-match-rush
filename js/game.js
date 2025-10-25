@@ -393,6 +393,8 @@ function initializeGame() {
     }
 
     async function startGameWithPayment(btn) {
+        console.log('🎮 Start button clicked!');
+        
         const originalText = btn.textContent;
         btn.textContent = '⏳ Processing...';
         btn.disabled = true;
@@ -400,9 +402,11 @@ function initializeGame() {
         const paid = await processPayment();
         
         if (paid) {
+            console.log('✅ Payment confirmed, starting game...');
             await new Promise(resolve => setTimeout(resolve, 500));
             startGameFromPayment();
         } else {
+            console.log('❌ Payment failed, restoring button...');
             btn.textContent = originalText;
             btn.disabled = false;
         }
@@ -416,11 +420,19 @@ function initializeGame() {
         });
     });
 
-    startBtn.addEventListener('click', function() {
+    // Single event listener for START button
+    startBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('👆 START button clicked');
         startGameWithPayment(startBtn);
     });
 
-    restartBtn.addEventListener('click', function() {
+    // Single event listener for RESTART button
+    restartBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('👆 RESTART button clicked');
         startGameWithPayment(restartBtn);
     });
 
