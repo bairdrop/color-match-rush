@@ -266,7 +266,6 @@ function initializeGame() {
         ctx.shadowBlur = 0;
     }
 
-    // ENHANCED Circle class with glow (NO TRAILS)
     class Circle {
         constructor() {
             this.x = Math.random() * (canvas.width - 60) + 30;
@@ -294,11 +293,9 @@ function initializeGame() {
         draw() {
             const pulse = Math.sin(Date.now() / 200 + this.pulsePhase) * 3;
             
-            // GLOW EFFECT - Multiple layers
             if (this.inTargetZone) {
                 ctx.save();
                 
-                // Outer glow
                 const outerGlow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius + 30);
                 outerGlow.addColorStop(0, COLORS[this.color] + '80');
                 outerGlow.addColorStop(0.5, COLORS[this.color] + '30');
@@ -308,7 +305,6 @@ function initializeGame() {
                 ctx.arc(this.x, this.y, this.radius + 30, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Pulsing ring
                 const pulseSize = Math.sin(Date.now() / 200) * 8 + 8;
                 ctx.strokeStyle = COLORS[this.color];
                 ctx.lineWidth = 4;
@@ -321,14 +317,12 @@ function initializeGame() {
                 ctx.restore();
             }
 
-            // Shadow
             ctx.save();
             ctx.shadowBlur = 15;
             ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
             ctx.shadowOffsetX = 5;
             ctx.shadowOffsetY = 5;
             
-            // Main circle with gradient
             const mainGradient = ctx.createRadialGradient(
                 this.x - this.radius * 0.3, 
                 this.y - this.radius * 0.3, 
@@ -346,7 +340,6 @@ function initializeGame() {
             ctx.fill();
             ctx.restore();
 
-            // Glossy highlight
             ctx.save();
             const highlightGradient = ctx.createRadialGradient(
                 this.x - this.radius * 0.4,
@@ -364,14 +357,12 @@ function initializeGame() {
             ctx.fill();
             ctx.restore();
 
-            // White outline
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
             ctx.lineWidth = this.inTargetZone ? 4 : 3;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius + pulse, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Target indicator
             if (this.inTargetZone) {
                 ctx.save();
                 ctx.translate(this.x, this.y);
@@ -399,7 +390,6 @@ function initializeGame() {
         }
     }
 
-    // ENHANCED Particle class - star burst effect
     class Particle {
         constructor(x, y, color) {
             this.x = x;
@@ -430,7 +420,6 @@ function initializeGame() {
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
             
-            // Star particle
             ctx.fillStyle = this.color;
             ctx.shadowBlur = 10;
             ctx.shadowColor = this.color;
@@ -527,10 +516,7 @@ function initializeGame() {
         timerEl.textContent = timeLeft;
     }
 
-    function gameLoop() {
-        if (!gameRunning) return;
-
-        // DARK PURPLE GLASS BACKGROUND
+    function drawInitialCanvas() {
         const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
         bgGradient.addColorStop(0, '#2d1b69');
         bgGradient.addColorStop(0.5, '#4a2870');
@@ -538,7 +524,25 @@ function initializeGame() {
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Glass overlay effect
+        ctx.save();
+        ctx.globalAlpha = 0.1;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height / 3);
+        ctx.restore();
+
+        drawTargetZone();
+    }
+
+    function gameLoop() {
+        if (!gameRunning) return;
+
+        const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        bgGradient.addColorStop(0, '#2d1b69');
+        bgGradient.addColorStop(0.5, '#4a2870');
+        bgGradient.addColorStop(1, '#3d2463');
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.save();
         ctx.globalAlpha = 0.1;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
@@ -629,4 +633,5 @@ function initializeGame() {
     });
 
     console.log('✅ Game initialized with glass effect & enhanced visuals');
+    drawInitialCanvas();
 }
