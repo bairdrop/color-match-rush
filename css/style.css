@@ -99,7 +99,7 @@ body {
     width: 90%;
     max-width: 350px;
     padding: 16px;
-    font-size: 19px;
+    font-size: 18px;
     font-weight: bold;
     background: white;
     color: #7C3AED;
@@ -168,7 +168,7 @@ body {
     justify-content: center;
     font-weight: bold;
     font-size: 16px;
-    color: #f624d8;
+    color: white;
     flex-shrink: 0;
     border: 2px solid white;
 }
@@ -367,6 +367,7 @@ body {
     z-index: 1000;
     padding: 20px;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .overlay.hidden {
@@ -398,6 +399,105 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+/* ===== SECONDARY BUTTON ===== */
+.secondary-button {
+    width: 85%;
+    max-width: 350px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 8px auto;
+    display: block;
+}
+
+.secondary-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+/* ===== LEADERBOARD MODAL ===== */
+.leaderboard-container {
+    background: linear-gradient(135deg, #2d1b69 0%, #4a2870 100%);
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.leaderboard-container h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+}
+
+.leaderboard-list {
+    margin: 20px 0;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin: 8px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.leaderboard-rank {
+    font-size: 24px;
+    font-weight: bold;
+    width: 40px;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.leaderboard-score {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.leaderboard-date {
+    font-size: 10px;
+    color: #999;
+    text-align: right;
+}
+
+/* ===== CREDIT LINE ===== */
+.credit-line {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 10px;
+    margin: 0;
+    z-index: 200;
+    opacity: 0.8;
+    letter-spacing: 0.5px;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -432,20 +532,3 @@ body {
         font-size: 50px;
     }
 }
-
-/* ===== CREDIT LINE ===== */
-.credit-line {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 12px;
-    margin: 0;
-    z-index: 200;
-    opacity: 0.8;
-    letter-spacing: 0.5px;
-}
-
-
-
