@@ -168,7 +168,7 @@ body {
     justify-content: center;
     font-weight: bold;
     font-size: 16px;
-    color: white;
+    color: #EC53C7;
     flex-shrink: 0;
     border: 2px solid white;
 }
@@ -532,3 +532,4 @@ body {
         font-size: 50px;
     }
 }
+
