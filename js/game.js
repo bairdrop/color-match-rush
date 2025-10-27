@@ -1,6 +1,6 @@
 const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
 const ENTRY_FEE = '0x9184e72a000';
-const GAME_DURATION = 10;
+const GAME_DURATION = 15;
 const CHAIN_ID = '0x2105';
 
 async function getFarcasterProvider() {
@@ -183,6 +183,10 @@ function initializeGame() {
     const restartBtn = document.getElementById('restartBtn');
     const colorButtons = document.querySelectorAll('.color-btn');
     const gameOverScreen = document.getElementById('gameOverScreen');
+    const castScoreBtn = document.getElementById('castScoreBtn');
+    const viewLeaderboardBtn = document.getElementById('viewLeaderboardBtn');
+    const closeLeaderboardBtn = document.getElementById('closeLeaderboardBtn');
+    const leaderboardModal = document.getElementById('leaderboardModal');
 
     let gameRunning = false;
     let score = 0;
@@ -226,7 +230,6 @@ function initializeGame() {
     });
 
     function drawTargetZone() {
-        // SCORING ZONE (100% opacity, bright)
         const scoringGradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, CANVAS_HEIGHT);
         scoringGradient.addColorStop(0, 'rgba(102, 126, 234, 1)');
         scoringGradient.addColorStop(0.5, 'rgba(138, 43, 226, 1)');
@@ -235,14 +238,12 @@ function initializeGame() {
         ctx.fillStyle = scoringGradient;
         ctx.fillRect(0, TARGET_ZONE_Y, canvas.width, TARGET_ZONE_HEIGHT);
 
-        // Glass effect on scoring zone
         ctx.save();
         ctx.globalAlpha = 0.3;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.fillRect(0, TARGET_ZONE_Y, canvas.width, TARGET_ZONE_HEIGHT / 2);
         ctx.restore();
 
-        // Scoring zone border with glow
         const pulseOffset = Math.sin(Date.now() / 300) * 3;
         ctx.strokeStyle = '#E0B0FF';
         ctx.lineWidth = 4;
@@ -256,7 +257,6 @@ function initializeGame() {
         ctx.setLineDash([]);
         ctx.shadowBlur = 0;
 
-        // Zone label
         ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
         ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
@@ -567,6 +567,68 @@ function initializeGame() {
         requestAnimationFrame(gameLoop);
     }
 
+    function saveScore(scoreValue) {
+        try {
+            let scores = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+            scores.push({
+                score: scoreValue,
+                date: new Date().toISOString()
+            });
+            
+            scores.sort((a, b) => b.score - a.score);
+            scores = scores.slice(0, 10);
+            
+            localStorage.setItem('leaderboard', JSON.stringify(scores));
+        } catch (e) {
+            console.error('Failed to save score:', e);
+        }
+    }
+
+    function loadLeaderboard() {
+        try {
+            const scores = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+            const leaderboardList = document.getElementById('leaderboardList');
+            
+            if (scores.length === 0) {
+                leaderboardList.innerHTML = '<p style="text-align:center;color:#999;">No scores yet. Play to be first!</p>';
+                return;
+            }
+            
+            leaderboardList.innerHTML = scores.map((item, index) => {
+                const date = new Date(item.date);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                
+                return `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">${medal} #${index + 1}</div>
+                        <div class="leaderboard-score">${item.score} pts</div>
+                        <div class="leaderboard-date">${formattedDate}</div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error('Failed to load leaderboard:', e);
+        }
+    }
+
+    async function castScore(scoreValue) {
+        try {
+            if (!window.farcasterSDK) {
+                alert('Farcaster SDK not available. Please open in Warpcast.');
+                return;
+            }
+            
+            const text = `🎨 I just scored ${scoreValue} points in Color Match Rush! Can you beat me? 🎮`;
+            
+            await window.farcasterSDK.actions.openUrl('https://warpcast.com/~/compose?text=' + encodeURIComponent(text));
+            console.log('✅ Cast opened');
+        } catch (error) {
+            console.error('Cast error:', error);
+            alert('Failed to cast score. Please try again.');
+        }
+    }
+
     function endGame() {
         gameRunning = false;
         clearInterval(timerInterval);
@@ -579,6 +641,7 @@ function initializeGame() {
         finalScoreEl.textContent = score;
         
         gameOverScreen.classList.remove('hidden');
+        saveScore(score);
 
         if (score > bestScore) {
             bestScore = score;
@@ -591,6 +654,7 @@ function initializeGame() {
 
     function startGameFromClick() {
         gameOverScreen.classList.add('hidden');
+        leaderboardModal.classList.add('hidden');
         
         gameRunning = true;
         init();
@@ -632,6 +696,19 @@ function initializeGame() {
         }
     });
 
-    console.log('✅ Game initialized with glass effect & enhanced visuals');
+    castScoreBtn.addEventListener('click', function() {
+        castScore(finalScoreEl.textContent);
+    });
+
+    viewLeaderboardBtn.addEventListener('click', function() {
+        loadLeaderboard();
+        leaderboardModal.classList.remove('hidden');
+    });
+
+    closeLeaderboardBtn.addEventListener('click', function() {
+        leaderboardModal.classList.add('hidden');
+    });
+
+    console.log('✅ Game initialized with glass effect & leaderboard');
     drawInitialCanvas();
 }
