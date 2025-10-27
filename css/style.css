@@ -440,11 +440,12 @@ body {
     left: 50%;
     transform: translateX(-50%);
     color: white;
-    font-size: 10px;
+    font-size: 12px;
     margin: 0;
     z-index: 200;
     opacity: 0.8;
     letter-spacing: 0.5px;
 }
+
 
 
