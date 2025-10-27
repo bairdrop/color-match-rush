@@ -619,7 +619,7 @@ function initializeGame() {
                 return;
             }
             
-            const text = `🎨 I just scored ${scoreValue} points in Color Match Rush! Can you beat me? 🎮`;
+            const text = `🎨 I just scored ${scoreValue} points in Color Match Rush! Can you beat me? 🎮\n\nhttps://farcaster.xyz/miniapps/t3c6bbKz1n15/color-match-rush`;
             
             await window.farcasterSDK.actions.openUrl('https://warpcast.com/~/compose?text=' + encodeURIComponent(text));
             console.log('✅ Cast opened');
@@ -628,6 +628,7 @@ function initializeGame() {
             alert('Failed to cast score. Please try again.');
         }
     }
+
 
     function endGame() {
         gameRunning = false;
@@ -712,3 +713,4 @@ function initializeGame() {
     console.log('✅ Game initialized with glass effect & leaderboard');
     drawInitialCanvas();
 }
+
