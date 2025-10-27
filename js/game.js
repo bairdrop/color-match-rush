@@ -192,7 +192,6 @@ function initializeGame() {
     let timeLeft = GAME_DURATION;
     let circles = [];
     let particles = [];
-    let trails = [];
 
     const CANVAS_HEIGHT = canvas.height;
     const TARGET_ZONE_HEIGHT = Math.floor(CANVAS_HEIGHT * 0.6);
@@ -227,60 +226,47 @@ function initializeGame() {
     });
 
     function drawTargetZone() {
-        const gradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, CANVAS_HEIGHT);
-        gradient.addColorStop(0, 'rgba(102, 126, 234, 0.15)');
-        gradient.addColorStop(0.5, 'rgba(102, 126, 234, 0.25)');
-        gradient.addColorStop(1, 'rgba(102, 126, 234, 0.35)');
+        // SCORING ZONE (100% opacity, bright)
+        const scoringGradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, CANVAS_HEIGHT);
+        scoringGradient.addColorStop(0, 'rgba(102, 126, 234, 1)');
+        scoringGradient.addColorStop(0.5, 'rgba(138, 43, 226, 1)');
+        scoringGradient.addColorStop(1, 'rgba(147, 51, 234, 1)');
         
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = scoringGradient;
         ctx.fillRect(0, TARGET_ZONE_Y, canvas.width, TARGET_ZONE_HEIGHT);
 
+        // Glass effect on scoring zone
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.fillRect(0, TARGET_ZONE_Y, canvas.width, TARGET_ZONE_HEIGHT / 2);
+        ctx.restore();
+
+        // Scoring zone border with glow
         const pulseOffset = Math.sin(Date.now() / 300) * 3;
-        ctx.strokeStyle = '#667eea';
+        ctx.strokeStyle = '#E0B0FF';
         ctx.lineWidth = 4;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#E0B0FF';
         ctx.setLineDash([15, 8]);
         ctx.beginPath();
         ctx.moveTo(0, TARGET_ZONE_Y + pulseOffset);
         ctx.lineTo(canvas.width, TARGET_ZONE_Y + pulseOffset);
         ctx.stroke();
         ctx.setLineDash([]);
+        ctx.shadowBlur = 0;
 
-        ctx.fillStyle = 'rgba(102, 126, 234, 0.8)';
-        ctx.font = 'bold 16px Arial';
+        // Zone label
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('⬇ TAP ZONE ⬇', canvas.width / 2, TARGET_ZONE_Y + 30);
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#000';
+        ctx.fillText('⬇ TAP ZONE ⬇', canvas.width / 2, TARGET_ZONE_Y + 35);
+        ctx.shadowBlur = 0;
     }
 
-    // ENHANCED Trail class for motion blur
-    class Trail {
-        constructor(x, y, color, size) {
-            this.x = x;
-            this.y = y;
-            this.color = color;
-            this.size = size;
-            this.alpha = 0.5;
-        }
-
-        update() {
-            this.alpha -= 0.05;
-        }
-
-        draw() {
-            ctx.save();
-            ctx.globalAlpha = this.alpha;
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-        }
-
-        isDead() {
-            return this.alpha <= 0;
-        }
-    }
-
-    // ENHANCED Circle class with glow and rotation
+    // ENHANCED Circle class with glow (NO TRAILS)
     class Circle {
         constructor() {
             this.x = Math.random() * (canvas.width - 60) + 30;
@@ -299,11 +285,6 @@ function initializeGame() {
             this.y += this.speed;
             this.rotation += this.rotationSpeed;
             this.inTargetZone = (this.y >= TARGET_ZONE_Y && this.y <= CANVAS_HEIGHT - 40);
-            
-            // Create trail effect
-            if (Math.random() < 0.3) {
-                trails.push(new Trail(this.x, this.y, COLORS[this.color], this.radius * 0.6));
-            }
             
             if (this.y > CANVAS_HEIGHT - 30) {
                 this.toRemove = true;
@@ -395,7 +376,7 @@ function initializeGame() {
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
                 ctx.font = 'bold 28px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -437,7 +418,7 @@ function initializeGame() {
         update() {
             this.x += this.vx;
             this.y += this.vy;
-            this.vy += 0.2; // gravity
+            this.vy += 0.2;
             this.alpha -= 0.015;
             this.rotation += this.rotationSpeed;
             this.size *= 0.98;
@@ -473,7 +454,7 @@ function initializeGame() {
     }
 
     function createParticles(x, y, color, count) {
-        count = count || 25;
+        count = count || 30;
         for (var i = 0; i < count; i++) {
             particles.push(new Particle(x, y, color));
         }
@@ -513,7 +494,7 @@ function initializeGame() {
                     circle.toRemove = true;
                     
                     audio.correct.play().catch(function() {});
-                    createParticles(circle.x, circle.y, COLORS[circle.color], 30);
+                    createParticles(circle.x, circle.y, COLORS[circle.color], 35);
                     
                     const btn = document.querySelector('[data-color="' + clickedColor + '"]');
                     btn.classList.add('correct');
@@ -542,7 +523,6 @@ function initializeGame() {
         timeLeft = GAME_DURATION;
         circles = [];
         particles = [];
-        trails = [];
         scoreEl.textContent = score;
         timerEl.textContent = timeLeft;
     }
@@ -550,21 +530,23 @@ function initializeGame() {
     function gameLoop() {
         if (!gameRunning) return;
 
+        // DARK PURPLE GLASS BACKGROUND
         const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        bgGradient.addColorStop(0, '#ffffff');
-        bgGradient.addColorStop(1, '#f0f0f0');
+        bgGradient.addColorStop(0, '#2d1b69');
+        bgGradient.addColorStop(0.5, '#4a2870');
+        bgGradient.addColorStop(1, '#3d2463');
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        // Glass overlay effect
+        ctx.save();
+        ctx.globalAlpha = 0.1;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height / 3);
+        ctx.restore();
+
         drawTargetZone();
         spawnCircle();
-
-        // Draw trails first (behind circles)
-        trails = trails.filter(function(t) { return !t.isDead(); });
-        trails.forEach(function(trail) {
-            trail.update();
-            trail.draw();
-        });
 
         circles = circles.filter(function(c) { return !c.toRemove; });
         circles.forEach(function(circle) {
@@ -646,5 +628,5 @@ function initializeGame() {
         }
     });
 
-    console.log('✅ Game initialized with enhanced visual effects');
+    console.log('✅ Game initialized with glass effect & enhanced visuals');
 }
