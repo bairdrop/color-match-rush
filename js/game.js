@@ -1,7 +1,7 @@
 const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
 const ENTRY_FEE = '0x9184e72a000';
 const GAME_DURATION = 10;
-const CHAIN_ID = '0x2105'; // Base Mainnet (8453 in decimal)
+const CHAIN_ID = '0x2105';
 
 async function getFarcasterProvider() {
     try {
@@ -18,7 +18,6 @@ async function getFarcasterProvider() {
     }
 }
 
-// Fallback for desktop wallets
 async function getEthereumProvider() {
     if (window.ethereum) {
         return window.ethereum;
@@ -28,14 +27,12 @@ async function getEthereumProvider() {
 
 async function ensureCorrectNetwork(provider) {
     try {
-        // Check current network
         const currentChainId = await provider.request({
             method: 'eth_chainId'
         });
         
         console.log('Current chain:', currentChainId);
         
-        // If not on Base, switch to Base
         if (currentChainId !== CHAIN_ID) {
             try {
                 await provider.request({
@@ -45,7 +42,6 @@ async function ensureCorrectNetwork(provider) {
                 console.log('✅ Switched to Base');
             } catch (switchError) {
                 if (switchError.code === 4902) {
-                    // Network not added, add it
                     await provider.request({
                         method: 'wallet_addEthereumChain',
                         params: [{
@@ -78,10 +74,8 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        // Try Farcaster provider first (mobile)
         let provider = await getFarcasterProvider();
         
-        // Fallback to desktop wallet (ethereum object)
         if (!provider) {
             provider = await getEthereumProvider();
             if (!provider) {
@@ -90,7 +84,6 @@ async function processPayment() {
             }
         }
         
-        // Ensure correct network
         const networkOk = await ensureCorrectNetwork(provider);
         if (!networkOk) return false;
         
@@ -111,7 +104,6 @@ async function processPayment() {
         const userAddress = accounts[0];
         console.log('✅ Connected to:', userAddress);
         
-        // Build transaction
         const txParams = {
             from: userAddress,
             to: PAYMENT_WALLET,
@@ -200,6 +192,7 @@ function initializeGame() {
     let timeLeft = GAME_DURATION;
     let circles = [];
     let particles = [];
+    let trails = [];
 
     const CANVAS_HEIGHT = canvas.height;
     const TARGET_ZONE_HEIGHT = Math.floor(CANVAS_HEIGHT * 0.6);
@@ -258,85 +251,18 @@ function initializeGame() {
         ctx.fillText('⬇ TAP ZONE ⬇', canvas.width / 2, TARGET_ZONE_Y + 30);
     }
 
-    class Circle {
-        constructor() {
-            this.x = Math.random() * (canvas.width - 60) + 30;
-            this.y = -30;
-            this.radius = 25;
-            this.color = colorNames[Math.floor(Math.random() * colorNames.length)];
-            this.speed = 2 + Math.random() * 2;
-            this.toRemove = false;
-            this.inTargetZone = false;
-        }
-
-        update() {
-            this.y += this.speed;
-            this.inTargetZone = (this.y >= TARGET_ZONE_Y && this.y <= CANVAS_HEIGHT - 40);
-            if (this.y > CANVAS_HEIGHT - 30) {
-                this.toRemove = true;
-            }
-        }
-
-        draw() {
-            if (this.inTargetZone) {
-                ctx.save();
-                ctx.shadowBlur = 25;
-                ctx.shadowColor = COLORS[this.color];
-                
-                const pulseSize = Math.sin(Date.now() / 200) * 6 + 6;
-                ctx.strokeStyle = COLORS[this.color];
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius + pulseSize, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.restore();
-            }
-
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.beginPath();
-            ctx.arc(this.x + 3, this.y + 3, this.radius, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = COLORS[this.color];
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.beginPath();
-            ctx.arc(this.x - 8, this.y - 8, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-            ctx.lineWidth = this.inTargetZone ? 4 : 3;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.stroke();
-
-            if (this.inTargetZone) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                ctx.font = 'bold 24px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('▼', this.x, this.y + 8);
-            }
-        }
-    }
-
-    class Particle {
-        constructor(x, y, color) {
+    // ENHANCED Trail class for motion blur
+    class Trail {
+        constructor(x, y, color, size) {
             this.x = x;
             this.y = y;
-            this.vx = (Math.random() - 0.5) * 5;
-            this.vy = (Math.random() - 0.5) * 5;
-            this.alpha = 1;
             this.color = color;
-            this.size = Math.random() * 4 + 2;
+            this.size = size;
+            this.alpha = 0.5;
         }
 
         update() {
-            this.x += this.vx;
-            this.y += this.vy;
-            this.alpha -= 0.02;
+            this.alpha -= 0.05;
         }
 
         draw() {
@@ -354,8 +280,200 @@ function initializeGame() {
         }
     }
 
+    // ENHANCED Circle class with glow and rotation
+    class Circle {
+        constructor() {
+            this.x = Math.random() * (canvas.width - 60) + 30;
+            this.y = -30;
+            this.radius = 25;
+            this.color = colorNames[Math.floor(Math.random() * colorNames.length)];
+            this.speed = 2 + Math.random() * 2;
+            this.toRemove = false;
+            this.inTargetZone = false;
+            this.rotation = 0;
+            this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+            this.pulsePhase = Math.random() * Math.PI * 2;
+        }
+
+        update() {
+            this.y += this.speed;
+            this.rotation += this.rotationSpeed;
+            this.inTargetZone = (this.y >= TARGET_ZONE_Y && this.y <= CANVAS_HEIGHT - 40);
+            
+            // Create trail effect
+            if (Math.random() < 0.3) {
+                trails.push(new Trail(this.x, this.y, COLORS[this.color], this.radius * 0.6));
+            }
+            
+            if (this.y > CANVAS_HEIGHT - 30) {
+                this.toRemove = true;
+            }
+        }
+
+        draw() {
+            const pulse = Math.sin(Date.now() / 200 + this.pulsePhase) * 3;
+            
+            // GLOW EFFECT - Multiple layers
+            if (this.inTargetZone) {
+                ctx.save();
+                
+                // Outer glow
+                const outerGlow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius + 30);
+                outerGlow.addColorStop(0, COLORS[this.color] + '80');
+                outerGlow.addColorStop(0.5, COLORS[this.color] + '30');
+                outerGlow.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = outerGlow;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + 30, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Pulsing ring
+                const pulseSize = Math.sin(Date.now() / 200) * 8 + 8;
+                ctx.strokeStyle = COLORS[this.color];
+                ctx.lineWidth = 4;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = COLORS[this.color];
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + pulseSize, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+
+            // Shadow
+            ctx.save();
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowOffsetX = 5;
+            ctx.shadowOffsetY = 5;
+            
+            // Main circle with gradient
+            const mainGradient = ctx.createRadialGradient(
+                this.x - this.radius * 0.3, 
+                this.y - this.radius * 0.3, 
+                0,
+                this.x, 
+                this.y, 
+                this.radius
+            );
+            mainGradient.addColorStop(0, this.lightenColor(COLORS[this.color], 40));
+            mainGradient.addColorStop(1, COLORS[this.color]);
+            
+            ctx.fillStyle = mainGradient;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + pulse, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Glossy highlight
+            ctx.save();
+            const highlightGradient = ctx.createRadialGradient(
+                this.x - this.radius * 0.4,
+                this.y - this.radius * 0.4,
+                0,
+                this.x - this.radius * 0.4,
+                this.y - this.radius * 0.4,
+                this.radius * 0.6
+            );
+            highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+            highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = highlightGradient;
+            ctx.beginPath();
+            ctx.arc(this.x - this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // White outline
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = this.inTargetZone ? 4 : 3;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + pulse, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Target indicator
+            if (this.inTargetZone) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = COLORS[this.color];
+                ctx.fillText('▼', 0, 0);
+                ctx.restore();
+            }
+        }
+
+        lightenColor(color, percent) {
+            const num = parseInt(color.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + 
+                   (G<255?G<1?0:G:255)*0x100 + 
+                   (B<255?B<1?0:B:255)).toString(16).slice(1);
+        }
+    }
+
+    // ENHANCED Particle class - star burst effect
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 6 + 2;
+            this.vx = Math.cos(angle) * speed;
+            this.vy = Math.sin(angle) * speed;
+            this.alpha = 1;
+            this.color = color;
+            this.size = Math.random() * 6 + 3;
+            this.rotation = 0;
+            this.rotationSpeed = (Math.random() - 0.5) * 0.3;
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vy += 0.2; // gravity
+            this.alpha -= 0.015;
+            this.rotation += this.rotationSpeed;
+            this.size *= 0.98;
+        }
+
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
+            
+            // Star particle
+            ctx.fillStyle = this.color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = this.color;
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * 2 * Math.PI) / 5;
+                const x = Math.cos(angle) * this.size;
+                const y = Math.sin(angle) * this.size;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        isDead() {
+            return this.alpha <= 0 || this.size < 0.5;
+        }
+    }
+
     function createParticles(x, y, color, count) {
-        count = count || 15;
+        count = count || 25;
         for (var i = 0; i < count; i++) {
             particles.push(new Particle(x, y, color));
         }
@@ -395,7 +513,7 @@ function initializeGame() {
                     circle.toRemove = true;
                     
                     audio.correct.play().catch(function() {});
-                    createParticles(circle.x, circle.y, COLORS[circle.color], 20);
+                    createParticles(circle.x, circle.y, COLORS[circle.color], 30);
                     
                     const btn = document.querySelector('[data-color="' + clickedColor + '"]');
                     btn.classList.add('correct');
@@ -424,6 +542,7 @@ function initializeGame() {
         timeLeft = GAME_DURATION;
         circles = [];
         particles = [];
+        trails = [];
         scoreEl.textContent = score;
         timerEl.textContent = timeLeft;
     }
@@ -439,6 +558,13 @@ function initializeGame() {
 
         drawTargetZone();
         spawnCircle();
+
+        // Draw trails first (behind circles)
+        trails = trails.filter(function(t) { return !t.isDead(); });
+        trails.forEach(function(trail) {
+            trail.update();
+            trail.draw();
+        });
 
         circles = circles.filter(function(c) { return !c.toRemove; });
         circles.forEach(function(circle) {
@@ -520,5 +646,5 @@ function initializeGame() {
         }
     });
 
-    console.log('✅ Game initialized after payment');
+    console.log('✅ Game initialized with enhanced visual effects');
 }
