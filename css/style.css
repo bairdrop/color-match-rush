@@ -99,7 +99,7 @@ body {
     width: 90%;
     max-width: 350px;
     padding: 16px;
-    font-size: 16px;
+    font-size: 19px;
     font-weight: bold;
     background: white;
     color: #7C3AED;
@@ -346,8 +346,8 @@ body {
 /* ===== START GAME BUTTON - COMPACT ===== */
 #gameStartBtn {
     width: 85%;
-    padding: 12px;
-    font-size: 14px;
+    padding: 14px;
+    font-size: 16px;
     margin: 8px auto;
     flex-shrink: 0;
 }
@@ -432,3 +432,4 @@ body {
         font-size: 50px;
     }
 }
+
