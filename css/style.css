@@ -38,7 +38,7 @@ body {
 
 /* ===== LANDING PAGE ===== */
 .landing-page {
-    background: linear-gradient(135deg, #0f1d45 0%, #4426a8 100%);
+    background: linear-gradient(135deg, #0f1d45 0%, #D111F2 100%);
     min-height: 100vh;
     padding: 0;
     gap: 0;
@@ -532,6 +532,7 @@ body {
         font-size: 50px;
     }
 }
+
 
 
 
