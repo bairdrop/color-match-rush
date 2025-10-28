@@ -99,7 +99,7 @@ body {
     width: 90%;
     max-width: 350px;
     padding: 16px;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
     background: white;
     color: #7C3AED;
@@ -532,6 +532,7 @@ body {
         font-size: 50px;
     }
 }
+
 
 
 
