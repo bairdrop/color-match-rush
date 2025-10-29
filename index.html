@@ -139,30 +139,21 @@
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
     window.farcasterSDK = sdk;
     
-    // ONLY call ready() in actual Farcaster environment
-    const isInFarcaster = window.self !== window.top;
-    
-    if (isInFarcaster) {
-        // Mobile Warpcast - call ready()
-        (async () => {
-            try {
-                await sdk.actions.ready();
-                console.log('✅ SDK ready - Farcaster mode');
-            } catch (error) {
-                console.error('SDK ready error:', error);
-            }
-        })();
-    } else {
-        // Desktop browser - skip ready(), just log
-        console.log('✅ Browser mode - no splash screen to dismiss');
-    }
+    setTimeout(async () => {
+        try {
+            await sdk.actions.ready();
+            console.log('✅ SDK ready');
+        } catch (error) {
+            console.error('SDK error:', error);
+        }
+    }, 500);
 </script>
-
     
     <!-- Load game -->
     <script src="js/game.js"></script>
 </body>
 </html>
+
 
 
 
