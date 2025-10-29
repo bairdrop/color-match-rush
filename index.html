@@ -136,21 +136,36 @@
     
     <!-- Load Farcaster SDK -->
     <script type="module">
-        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-        window.farcasterSDK = sdk;
-        
-        setTimeout(async () => {
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+    window.farcasterSDK = sdk;
+    
+    // Call ready immediately when DOM is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
                 await sdk.actions.ready();
                 console.log('✅ SDK ready');
             } catch (error) {
                 console.error('SDK error:', error);
             }
-        }, 500);
-    </script>
+        });
+    } else {
+        // DOM already loaded
+        (async () => {
+            try {
+                await sdk.actions.ready();
+                console.log('✅ SDK ready');
+            } catch (error) {
+                console.error('SDK error:', error);
+            }
+        })();
+    }
+</script>
+
     
     <!-- Load game -->
     <script src="js/game.js"></script>
 </body>
 </html>
+
 
