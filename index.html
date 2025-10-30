@@ -144,42 +144,17 @@
 
 <script src="js/game.js"></script>
 
-<!-- Force dismiss Farcaster splash screen -->
-<script>
-    // IMMEDIATELY try to dismiss splash before anything else
-    (function() {
-        const dismissSplash = () => {
-            try {
-                if (window.parent && window.parent.postMessage) {
-                    window.parent.postMessage({ type: 'fc:ready' }, '*');
-                    window.parent.postMessage({ type: 'ready' }, '*');
-                }
-            } catch(e) {}
-        };
-        
-        dismissSplash();
-        setTimeout(dismissSplash, 100);
-        setTimeout(dismissSplash, 500);
-        setTimeout(dismissSplash, 1000);
-    })();
-</script>
-
+<!-- Load SDK SYNCHRONOUSLY before game.js -->
 <script type="module">
-    // Load SDK properly
-    (async () => {
-        try {
-            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-            window.farcasterSDK = sdk;
-            
-            // Call ready multiple times to ensure it works
-            if (sdk.actions && sdk.actions.ready) {
-                await sdk.actions.ready();
-                console.log('✅ SDK ready called');
-            }
-        } catch (error) {
-            console.log('SDK error (normal on desktop):', error.message);
-        }
-    })();
+  import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk@latest';
+  window.farcasterSDK = sdk;
+  
+  // Call ready() immediately
+  sdk.actions.ready().then(() => {
+    console.log('✅ SDK ready - splash dismissed');
+  }).catch((error) => {
+    console.log('⚠️ Not in Farcaster iframe:', error.message);
+  });
 </script>
 
 <script src="js/game.js"></script>
@@ -187,6 +162,7 @@
 
 </body>
 </html>
+
 
 
 
