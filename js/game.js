@@ -100,17 +100,13 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        // Better Farcaster detection
-        const isFarcaster = !!window.farcasterSDK && 
-                           window.farcasterSDK.actions && 
-                           window.farcasterSDK.actions.sendTransaction;
+        // Wait for SDK if not loaded yet
+        await waitForSDK();
         
-        console.log('🔍 Environment check:', { isFarcaster, hasSDK: !!window.farcasterSDK });
-        
-        if (isFarcaster) {
-            // Use Farcaster SDK's native transaction method
+        // Try Farcaster SDK first
+        if (window.farcasterSDK && window.farcasterSDK.actions && window.farcasterSDK.actions.sendTransaction) {
             try {
-                console.log('📱 Using Farcaster SDK sendTransaction...');
+                console.log('📱 Using Farcaster SDK...');
                 
                 const result = await window.farcasterSDK.actions.sendTransaction({
                     to: PAYMENT_WALLET,
@@ -119,55 +115,38 @@ async function processPayment() {
                 });
                 
                 console.log('✅ Payment successful! Result:', result);
-                alert('Payment successful! Starting game...');
-                await new Promise(resolve => setTimeout(resolve, 1000));
                 return true;
             } catch (error) {
                 console.error('Farcaster transaction error:', error);
-                if (error.code === 4001 || error.message.includes('rejected')) {
-                    alert('Payment cancelled by user');
+                if (error.code === 4001 || error.message?.includes('rejected')) {
+                    alert('Payment cancelled');
                 } else {
                     alert('Transaction failed: ' + (error.message || 'Unknown error'));
                 }
                 return false;
             }
-        } else {
-            // Browser fallback
-            console.log('🌐 Trying browser wallet (MetaMask, etc)...');
-            let provider = window.ethereum;
-            
-            if (!provider) {
-                alert('No wallet found. Please:\n1. Open in Warpcast app, OR\n2. Install MetaMask extension');
-                return false;
-            }
-            
+        }
+        
+        // Fallback to browser wallet
+        if (window.ethereum) {
             try {
-                const accounts = await provider.request({
+                console.log('🌐 Using browser wallet...');
+                
+                const accounts = await window.ethereum.request({
                     method: 'eth_requestAccounts'
                 });
                 
-                if (!accounts || accounts.length === 0) {
-                    alert('No wallet connected.');
-                    return false;
-                }
-                
-                const userAddress = accounts[0];
-                console.log('✅ Connected to:', userAddress);
-                
-                const tx = await provider.request({
+                const tx = await window.ethereum.request({
                     method: 'eth_sendTransaction',
                     params: [{
-                        from: userAddress,
+                        from: accounts[0],
                         to: PAYMENT_WALLET,
                         value: ENTRY_FEE,
-                        data: '0x',
                         chainId: CHAIN_ID
                     }]
                 });
                 
                 console.log('✅ Payment successful! Tx:', tx);
-                alert('Payment successful! Starting game...');
-                await new Promise(resolve => setTimeout(resolve, 1000));
                 return true;
             } catch (error) {
                 console.error('Browser wallet error:', error);
@@ -175,8 +154,13 @@ async function processPayment() {
                 return false;
             }
         }
+        
+        // No wallet found
+        alert('No wallet available. Please open in Warpcast app or install MetaMask.');
+        return false;
+        
     } catch (error) {
-        console.error('Payment flow error:', error);
+        console.error('Payment error:', error);
         alert('Payment error: ' + error.message);
         return false;
     }
@@ -561,6 +545,7 @@ function initializeGame() {
 
     console.log('✅ Game initialized after payment');
 }
+
 
 
 
