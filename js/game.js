@@ -6,17 +6,28 @@ const CHAIN_ID = '0x2105';
 async function processPayment() {
     try {
         console.log('💰 Starting payment...');
-        console.log('SDK available:', !!window.farcasterSDK);
-        console.log('SDK.actions:', !!window.farcasterSDK?.actions);
-        console.log('sendTransaction:', !!window.farcasterSDK?.actions?.sendTransaction);
         
-        // MOBILE WARPCAST - Allow free play 
-        if (window.farcasterSDK) {
-            console.log('✅ Warpcast detected - free play granted');
-            return true; // Allow on mobile
+        // MOBILE WARPCAST - Use SDK sendTransaction directly
+        if (window.farcasterSDK && window.farcasterSDK.actions && window.farcasterSDK.actions.sendTransaction) {
+            try {
+                console.log('📱 Mobile: Using SDK sendTransaction');
+                
+                const result = await window.farcasterSDK.actions.sendTransaction({
+                    to: PAYMENT_WALLET,
+                    value: ENTRY_FEE,
+                    chainId: CHAIN_ID
+                });
+                
+                console.log('✅ Mobile payment successful:', result);
+                return true;
+            } catch (error) {
+                console.error('Mobile payment error:', error);
+                alert('Payment failed: ' + (error.message || 'Unknown'));
+                return false;
+            }
         }
         
-        // DESKTOP - Require MetaMask payment
+        // DESKTOP - Use MetaMask
         if (window.ethereum) {
             try {
                 console.log('🌐 Desktop: Using MetaMask');
@@ -53,14 +64,17 @@ async function processPayment() {
             }
         }
         
-        alert('❌ No wallet available');
+        // No wallet found
+        alert('❌ No wallet available\n\nOpen in Warpcast app or use MetaMask on desktop');
         return false;
         
     } catch (error) {
         console.error('Payment error:', error);
+        alert('Error: ' + error.message);
         return false;
     }
 }
+
 
 
 
@@ -652,6 +666,7 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
 
 
 
