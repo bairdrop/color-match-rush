@@ -5,26 +5,34 @@ const CHAIN_ID = '0x2105';
 
 async function processPayment() {
     try {
-        console.log('💰 Starting payment on Base...');
+        console.log('💰 Starting payment...');
         
-        let provider = window.ethereum;
+        // Try to get Farcaster provider first
+        let provider = null;
         
-        // For Warpcast mobile - try Farcaster SDK
-        if (window.farcasterSDK && window.farcasterSDK.wallet && window.farcasterSDK.wallet.getEthereumProvider) {
+        if (window.farcasterSDK && window.farcasterSDK.wallet) {
             try {
+                console.log('📱 Getting Farcaster provider...');
                 provider = await window.farcasterSDK.wallet.getEthereumProvider();
-                console.log('📱 Using Farcaster provider');
-            } catch (e) {
-                console.log('Farcaster provider failed, using MetaMask');
+            } catch (error) {
+                console.warn('Farcaster provider unavailable:', error.message);
+                provider = null;
             }
         }
         
+        // Fallback to browser MetaMask
+        if (!provider && window.ethereum) {
+            console.log('🌐 Using MetaMask...');
+            provider = window.ethereum;
+        }
+        
         if (!provider) {
-            alert('No wallet found. Please connect MetaMask or use Warpcast.');
+            alert('❌ No wallet available');
             return false;
         }
         
         // Request accounts
+        console.log('Requesting accounts...');
         const accounts = await provider.request({
             method: 'eth_requestAccounts'
         });
@@ -34,14 +42,12 @@ async function processPayment() {
             return false;
         }
         
-        const userAddress = accounts[0];
-        console.log('Connected:', userAddress);
-        
-        // Send payment transaction
+        // Send transaction
+        console.log('Sending transaction...');
         const tx = await provider.request({
             method: 'eth_sendTransaction',
             params: [{
-                from: userAddress,
+                from: accounts[0],
                 to: PAYMENT_WALLET,
                 value: ENTRY_FEE,
                 chainId: CHAIN_ID
@@ -53,15 +59,15 @@ async function processPayment() {
         
     } catch (error) {
         console.error('Payment error:', error);
-        
         if (error.code === 4001) {
             alert('Payment cancelled');
         } else {
-            alert('Payment failed: ' + (error.message || 'Unknown error'));
+            alert('Payment failed: ' + (error.message || 'Unknown'));
         }
         return false;
     }
 }
+
 
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
@@ -651,6 +657,7 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
 
 
 
