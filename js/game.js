@@ -3,20 +3,38 @@ const ENTRY_FEE = '0x9184e72a000';
 const GAME_DURATION = 15;
 const CHAIN_ID = '0x2105';
 
+// Initialize SDK and dismiss splash screen immediately
+async function initializeSDK() {
+    try {
+        console.log('🚀 Initializing Farcaster SDK...');
+        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+        window.farcasterSDK = sdk;
+        
+        // CRITICAL: Call ready() immediately to dismiss splash
+        await sdk.actions.ready();
+        console.log('✅ Farcaster SDK ready - splash dismissed');
+        
+        return true;
+    } catch (error) {
+        console.error('SDK init error:', error);
+        // Still return true to allow app to work without SDK
+        return false;
+    }
+}
+
 async function processPayment() {
     try {
         console.log('💰 Starting payment...');
         
-        // Try to get Farcaster provider first
         let provider = null;
         
+        // Try Farcaster provider first
         if (window.farcasterSDK && window.farcasterSDK.wallet) {
             try {
                 console.log('📱 Getting Farcaster provider...');
                 provider = await window.farcasterSDK.wallet.getEthereumProvider();
             } catch (error) {
                 console.warn('Farcaster provider unavailable:', error.message);
-                provider = null;
             }
         }
         
@@ -27,7 +45,7 @@ async function processPayment() {
         }
         
         if (!provider) {
-            alert('❌ No wallet available');
+            alert('❌ No wallet available. Please use Warpcast or connect MetaMask.');
             return false;
         }
         
@@ -62,50 +80,54 @@ async function processPayment() {
         if (error.code === 4001) {
             alert('Payment cancelled');
         } else {
-            alert('Payment failed: ' + (error.message || 'Unknown'));
+            alert('Payment failed: ' + (error.message || 'Unknown error'));
         }
         return false;
     }
 }
-
 
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
     document.getElementById('gamePage').classList.add('active');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Start button - FIXED
+// Main initialization
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🎮 DOM Content Loaded');
+    
+    // Initialize SDK first (dismisses splash)
+    await initializeSDK();
+    
+    // Setup start button
     const startBtn = document.getElementById('landingStartBtn');
     if (startBtn) {
         startBtn.addEventListener('click', async function(e) {
-    e.preventDefault();
-    console.log('🎮 START button clicked');
-    
-    const btn = this;
-    const originalText = btn.textContent;
-    btn.textContent = '⏳ Processing...';
-    btn.disabled = true;
-    
-    try {
-        const paid = await processPayment();
-        
-        if (paid) {
-            console.log('✅ Payment successful');
-            goToGamePage();
-            setTimeout(() => initializeGame(), 100);
-        } else {
-            console.log('❌ Payment failed');
-            btn.textContent = originalText;
-            btn.disabled = false;
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        btn.textContent = originalText;
-        btn.disabled = false;
-    }
-});
-
+            e.preventDefault();
+            console.log('🎮 START button clicked');
+            
+            const btn = this;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '⏳ Processing...';
+            btn.disabled = true;
+            
+            try {
+                const paid = await processPayment();
+                
+                if (paid) {
+                    console.log('✅ Payment successful');
+                    goToGamePage();
+                    setTimeout(() => initializeGame(), 100);
+                } else {
+                    console.log('❌ Payment failed');
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        });
     }
 });
 
@@ -161,18 +183,43 @@ function initializeGame() {
             bestScore = parseInt(saved);
             bestEl.textContent = bestScore;
         }
-    } catch (e) {}
+    } catch (e) {
+        console.warn('localStorage not available:', e);
+    }
 
+    // Safe audio loading (won't block if files don't exist)
     const audio = {
-        correct: new Audio('sounds/correct.mp3'),
-        wrong: new Audio('sounds/wrong.mp3'),
-        gameOver: new Audio('sounds/gameover.mp3')
+        correct: null,
+        wrong: null,
+        gameOver: null
     };
 
-    Object.values(audio).forEach(function(sound) {
-        sound.volume = 0.3;
-        sound.addEventListener('error', function() {});
-    });
+    try {
+        audio.correct = new Audio('sounds/correct.mp3');
+        audio.wrong = new Audio('sounds/wrong.mp3');
+        audio.gameOver = new Audio('sounds/gameover.mp3');
+        
+        Object.values(audio).forEach(function(sound) {
+            if (sound) {
+                sound.volume = 0.3;
+                sound.addEventListener('error', function() {
+                    console.warn('Audio file not found');
+                });
+            }
+        });
+    } catch (e) {
+        console.warn('Audio initialization failed:', e);
+    }
+
+    function playSound(soundName) {
+        try {
+            if (audio[soundName]) {
+                audio[soundName].play().catch(() => {});
+            }
+        } catch (e) {
+            // Silently fail
+        }
+    }
 
     function drawTargetZone() {
         const scoringGradient = ctx.createLinearGradient(0, TARGET_ZONE_Y, 0, CANVAS_HEIGHT);
@@ -427,7 +474,7 @@ function initializeGame() {
                     score += 10;
                     circle.toRemove = true;
                     
-                    audio.correct.play().catch(function() {});
+                    playSound('correct');
                     createParticles(circle.x, circle.y, COLORS[circle.color], 35);
                     
                     const btn = document.querySelector('[data-color="' + clickedColor + '"]');
@@ -436,7 +483,7 @@ function initializeGame() {
                 } else {
                     score = Math.max(0, score - 5);
                     
-                    audio.wrong.play().catch(function() {});
+                    playSound('wrong');
                     
                     const btn = document.querySelector('[data-color="' + clickedColor + '"]');
                     btn.classList.add('wrong');
@@ -577,7 +624,7 @@ function initializeGame() {
     function endGame() {
         gameRunning = false;
         clearInterval(timerInterval);
-        audio.gameOver.play().catch(function() {});
+        playSound('gameOver');
 
         gamesPlayed++;
         lastScore = score;
@@ -623,20 +670,20 @@ function initializeGame() {
         e.preventDefault();
         
         const btn = this;
-        const originalText = btn.textContent;
-        btn.textContent = '⏳ Processing Payment...';
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '⏳ Processing Payment...';
         btn.disabled = true;
         
         const paid = await processPayment();
         
         if (paid) {
             console.log('✅ Payment successful, playing again');
-            btn.textContent = originalText;
+            btn.innerHTML = originalHTML;
             btn.disabled = false;
             startGameFromClick();
         } else {
             console.log('❌ Payment failed');
-            btn.textContent = originalText;
+            btn.innerHTML = originalHTML;
             btn.disabled = false;
         }
     });
@@ -657,10 +704,3 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
-
-
-
-
-
-
-
