@@ -1,3 +1,10 @@
+// Emergency splash dismiss after 3 seconds
+setTimeout(() => {
+    if (window.farcasterSDK && window.farcasterSDK.actions) {
+        window.farcasterSDK.actions.ready().catch(console.error);
+    }
+}, 3000);
+
 // SDK Initialization - IMMEDIATE
 (async function initSDK() {
     try {
@@ -694,3 +701,4 @@ function initializeGame() {
     console.log('✅ Game fully initialized and ready');
     drawInitialCanvas();
 }
+
