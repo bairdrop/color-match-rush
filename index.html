@@ -148,8 +148,23 @@
 <script src="js/game.js"></script>
 
 
+<!-- Farcaster SDK -->
+<script type="module">
+    (async () => {
+        try {
+            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+            window.farcasterSDK = sdk;
+            
+            // CRITICAL: Call ready() to dismiss splash screen
+            await sdk.actions.ready();
+            console.log('✅ Farcaster SDK initialized and ready');
+        } catch (error) {
+            console.error('SDK init error:', error);
+        }
+    })();
+</script>
+
+<script src="js/game.js"></script>
+
 </body>
 </html>
-
-
-
