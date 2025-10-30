@@ -74,42 +74,18 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        let provider = null;
+        let provider = await getFarcasterProvider();
         
-        // Check if in Farcaster environment
-        const isFarcaster = window.self !== window.top;
-        
-        if (isFarcaster && window.farcasterSDK) {
-            try {
-                console.log('📱 Attempting Farcaster wallet connection...');
-                provider = await window.farcasterSDK.wallet.getEthereumProvider();
-                console.log('✅ Farcaster provider obtained');
-            } catch (error) {
-                console.error('Farcaster provider error:', error);
-                provider = null;
+        if (!provider) {
+            provider = await getEthereumProvider();
+            if (!provider) {
+                console.log('⚠️ No provider available');
+                return true;
             }
         }
         
-        // Fallback to browser wallet if Farcaster failed
-        if (!provider) {
-            console.log('🌐 Trying browser wallet...');
-            provider = window.ethereum;
-        }
-        
-        // STOP if still no provider
-        if (!provider) {
-            console.error('❌ No wallet provider found');
-            alert('Please open this app in Warpcast to use Farcaster wallet, or connect MetaMask in browser.');
-            return false;
-        }
-        
-        console.log('✅ Provider connected');
-        
         const networkOk = await ensureCorrectNetwork(provider);
-        if (!networkOk) {
-            alert('Please switch to Base network');
-            return false;
-        }
+        if (!networkOk) return false;
         
         let accounts;
         try {
@@ -118,12 +94,10 @@ async function processPayment() {
             });
         } catch (error) {
             console.error('Account request error:', error);
-            alert('Please connect your wallet to continue');
             return false;
         }
         
         if (!accounts || accounts.length === 0) {
-            alert('No wallet connected. Please connect wallet.');
             return false;
         }
         
@@ -134,11 +108,8 @@ async function processPayment() {
             from: userAddress,
             to: PAYMENT_WALLET,
             value: ENTRY_FEE,
-            data: '0x',
-            chainId: CHAIN_ID
+            data: '0x'
         };
-        
-        console.log('📤 Sending transaction:', txParams);
         
         try {
             const tx = await provider.request({
@@ -147,21 +118,19 @@ async function processPayment() {
             });
             
             console.log('✅ Payment successful! Tx:', tx);
-            alert('Payment successful! Starting game...');
             await new Promise(resolve => setTimeout(resolve, 1500));
             return true;
         } catch (error) {
             console.error('Transaction error:', error);
             if (error.code === 4001) {
-                alert('Payment cancelled by user');
+                console.log('User rejected transaction');
             } else {
-                alert('Transaction failed: ' + (error.message || 'Unknown error'));
+                alert('Transaction failed: ' + (error.message || error.code));
             }
             return false;
         }
     } catch (error) {
         console.error('Payment flow error:', error);
-        alert('Payment error: ' + error.message);
         return false;
     }
 }
@@ -659,6 +628,7 @@ function initializeGame() {
             alert('Failed to cast score. Please try again.');
         }
     }
+
 
     function endGame() {
         gameRunning = false;
