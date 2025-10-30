@@ -78,9 +78,14 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        const isFarcaster = window.self !== window.top;
+        // Better Farcaster detection
+        const isFarcaster = !!window.farcasterSDK && 
+                           window.farcasterSDK.actions && 
+                           window.farcasterSDK.actions.sendTransaction;
         
-        if (isFarcaster && window.farcasterSDK) {
+        console.log('🔍 Environment check:', { isFarcaster, hasSDK: !!window.farcasterSDK });
+        
+        if (isFarcaster) {
             // Use Farcaster SDK's native transaction method
             try {
                 console.log('📱 Using Farcaster SDK sendTransaction...');
@@ -106,11 +111,11 @@ async function processPayment() {
             }
         } else {
             // Browser fallback
-            console.log('🌐 Trying browser wallet...');
+            console.log('🌐 Trying browser wallet (MetaMask, etc)...');
             let provider = window.ethereum;
             
             if (!provider) {
-                alert('Please open this app in Warpcast to use Farcaster wallet.');
+                alert('No wallet found. Please:\n1. Open in Warpcast app, OR\n2. Install MetaMask extension');
                 return false;
             }
             
@@ -534,4 +539,5 @@ function initializeGame() {
 
     console.log('✅ Game initialized after payment');
 }
+
 
