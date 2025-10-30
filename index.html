@@ -133,43 +133,29 @@
         </div>
     </div>
     
-<!-- Load Farcaster SDK - FIXED VERSION -->
+<!-- Load Farcaster SDK - OFFICIAL VERSION -->
 <script type="module">
-    // Import from working CDN
-    import { sdk } from 'https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.16/+esm';
+    import { sdk } from 'https://esm.sh/@farcaster/frame-sdk@0.0.5';
     
     window.farcasterSDK = sdk;
     
-    // Detect environment
-    const isInFarcaster = window.self !== window.top;
-    
-    // Initialize SDK
-    async function initSDK() {
+    // Call ready() immediately - works on both mobile and desktop
+    (async () => {
         try {
-            if (isInFarcaster) {
-                await sdk.actions.ready();
-                console.log('✅ SDK ready - Farcaster mode');
-            } else {
-                console.log('✅ Browser mode - no SDK needed');
-            }
+            await sdk.actions.ready();
+            console.log('✅ SDK ready');
         } catch (error) {
-            console.error('SDK init error:', error);
-            // Continue anyway - don't block the app
+            console.warn('SDK ready failed (browser mode):', error);
+            // Continue anyway - this is normal in browser
         }
-    }
-    
-    // Wait for DOM then init
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSDK);
-    } else {
-        initSDK();
-    }
+    })();
 </script>
     
     <!-- Load game -->
     <script src="js/game.js"></script>
 </body>
 </html>
+
 
 
 
