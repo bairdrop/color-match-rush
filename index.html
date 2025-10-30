@@ -118,46 +118,26 @@
         </div>
     </div>
     
-  <!-- Load Farcaster SDK with proper ready() call -->
-<script type="module">
-    async function initializeApp() {
+<!-- Simple SDK initialization -->
+<script>
+    // Don't break the app - just try to load SDK
+    (async () => {
         try {
-            console.log('🚀 Initializing app...');
-            
-            // Import SDK
-            const module = await import('https://esm.sh/@farcaster/frame-sdk@0.0.5');
-            const { sdk } = module;
-            
-            window.farcasterSDK = sdk;
-            console.log('✅ SDK imported:', !!sdk);
-            
-            // THIS IS CRITICAL - Call ready() to dismiss splash screen
-            try {
-                await sdk.actions.ready();
-                console.log('✅ Splash screen dismissed');
-            } catch (error) {
-                console.warn('⚠️ SDK ready() error (normal in browser):', error.message);
+            const mod = await import('https://esm.sh/@farcaster/frame-sdk@0.0.5');
+            window.farcasterSDK = mod.sdk;
+            if (window.farcasterSDK?.actions?.ready) {
+                window.farcasterSDK.actions.ready().catch(e => console.log('Ready failed:', e.message));
             }
-            
-            // Mark SDK as loaded
-            window.sdkReady = true;
-            console.log('✅ App fully initialized');
-            
-        } catch (error) {
-            console.error('❌ Failed to initialize:', error);
-            // Still mark as ready even if SDK fails - allow browser mode
-            window.sdkReady = true;
+        } catch (e) {
+            console.log('SDK load error:', e.message);
         }
-    }
-    
-    // Initialize immediately
-    initializeApp();
+    })();
 </script>
-
     
     <!-- Load game -->
     <script src="js/game.js"></script>
 </body>
 </html>
+
 
 
