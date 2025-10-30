@@ -5,78 +5,63 @@ const CHAIN_ID = '0x2105';
 
 async function processPayment() {
     try {
-        console.log('💰 Starting payment...');
+        console.log('💰 Starting payment on Base...');
         
-        // MOBILE WARPCAST - Use SDK sendTransaction directly
-        if (window.farcasterSDK && window.farcasterSDK.actions && window.farcasterSDK.actions.sendTransaction) {
+        let provider = window.ethereum;
+        
+        // For Warpcast mobile - try Farcaster SDK
+        if (window.farcasterSDK && window.farcasterSDK.wallet && window.farcasterSDK.wallet.getEthereumProvider) {
             try {
-                console.log('📱 Mobile: Using SDK sendTransaction');
-                
-                const result = await window.farcasterSDK.actions.sendTransaction({
-                    to: PAYMENT_WALLET,
-                    value: ENTRY_FEE,
-                    chainId: CHAIN_ID
-                });
-                
-                console.log('✅ Mobile payment successful:', result);
-                return true;
-            } catch (error) {
-                console.error('Mobile payment error:', error);
-                alert('Payment failed: ' + (error.message || 'Unknown'));
-                return false;
+                provider = await window.farcasterSDK.wallet.getEthereumProvider();
+                console.log('📱 Using Farcaster provider');
+            } catch (e) {
+                console.log('Farcaster provider failed, using MetaMask');
             }
         }
         
-        // DESKTOP - Use MetaMask
-        if (window.ethereum) {
-            try {
-                console.log('🌐 Desktop: Using MetaMask');
-                
-                const accounts = await window.ethereum.request({
-                    method: 'eth_requestAccounts'
-                });
-                
-                if (!accounts || accounts.length === 0) {
-                    alert('Please connect wallet');
-                    return false;
-                }
-                
-                const tx = await window.ethereum.request({
-                    method: 'eth_sendTransaction',
-                    params: [{
-                        from: accounts[0],
-                        to: PAYMENT_WALLET,
-                        value: ENTRY_FEE,
-                        chainId: CHAIN_ID
-                    }]
-                });
-                
-                console.log('✅ Desktop payment successful:', tx);
-                return true;
-            } catch (error) {
-                console.error('Desktop payment error:', error);
-                if (error.code === 4001) {
-                    alert('Payment cancelled');
-                } else {
-                    alert('Payment failed: ' + (error.message || 'Unknown'));
-                }
-                return false;
-            }
+        if (!provider) {
+            alert('No wallet found. Please connect MetaMask or use Warpcast.');
+            return false;
         }
         
-        // No wallet found
-        alert('❌ No wallet available\n\nOpen in Warpcast app or use MetaMask on desktop');
-        return false;
+        // Request accounts
+        const accounts = await provider.request({
+            method: 'eth_requestAccounts'
+        });
+        
+        if (!accounts || accounts.length === 0) {
+            alert('Please connect your wallet');
+            return false;
+        }
+        
+        const userAddress = accounts[0];
+        console.log('Connected:', userAddress);
+        
+        // Send payment transaction
+        const tx = await provider.request({
+            method: 'eth_sendTransaction',
+            params: [{
+                from: userAddress,
+                to: PAYMENT_WALLET,
+                value: ENTRY_FEE,
+                chainId: CHAIN_ID
+            }]
+        });
+        
+        console.log('✅ Payment successful:', tx);
+        return true;
         
     } catch (error) {
         console.error('Payment error:', error);
-        alert('Error: ' + error.message);
+        
+        if (error.code === 4001) {
+            alert('Payment cancelled');
+        } else {
+            alert('Payment failed: ' + (error.message || 'Unknown error'));
+        }
         return false;
     }
 }
-
-
-
 
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
@@ -666,6 +651,7 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
 
 
 
