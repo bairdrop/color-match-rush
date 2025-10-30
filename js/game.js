@@ -10,58 +10,11 @@ const isFarcasterReady = () => {
 
 async function processPayment() {
     try {
-        console.log('💰 Starting payment...');
-        
-        const isFarcaster = isFarcasterReady();
-        console.log('📱 Farcaster available:', isFarcaster);
-        
-        if (isFarcaster) {
-            try {
-                console.log('📱 Sending Farcaster transaction...');
-                
-                const result = await window.farcasterSDK.actions.sendTransaction({
-                    to: PAYMENT_WALLET,
-                    value: ENTRY_FEE,
-                    chainId: CHAIN_ID
-                });
-                
-                console.log('✅ Payment successful:', result);
-                return true;
-            } catch (error) {
-                console.error('Farcaster tx error:', error);
-                alert('Transaction failed: ' + (error.message || 'Unknown error'));
-                return false;
-            }
-        }
-        
-        // Browser fallback
-        if (window.ethereum) {
-            console.log('🌐 Using browser wallet...');
-            
-            const accounts = await window.ethereum.request({
-                method: 'eth_requestAccounts'
-            });
-            
-            const tx = await window.ethereum.request({
-                method: 'eth_sendTransaction',
-                params: [{
-                    from: accounts[0],
-                    to: PAYMENT_WALLET,
-                    value: ENTRY_FEE,
-                    chainId: CHAIN_ID
-                }]
-            });
-            
-            console.log('✅ Payment successful:', tx);
-            return true;
-        }
-        
-        alert('No wallet found');
-        return false;
-        
+        // For now, allow free play to test
+        console.log('✅ Starting game...');
+        return true;
     } catch (error) {
         console.error('Payment error:', error);
-        alert('Error: ' + error.message);
         return false;
     }
 }
@@ -643,3 +596,4 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
