@@ -73,12 +73,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start button - FIXED
     const startBtn = document.getElementById('landingStartBtn');
     if (startBtn) {
-        startBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('🎮 START button clicked');
+        startBtn.addEventListener('click', async function(e) {
+    e.preventDefault();
+    console.log('🎮 START button clicked');
+    
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = '⏳ Processing...';
+    btn.disabled = true;
+    
+    try {
+        const paid = await processPayment();
+        
+        if (paid) {
+            console.log('✅ Payment successful');
             goToGamePage();
-            initializeGame();
-        });
+            setTimeout(() => initializeGame(), 100);
+        } else {
+            console.log('❌ Payment failed');
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+});
+
     }
 });
 
@@ -630,4 +652,5 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
 
