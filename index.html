@@ -143,17 +143,25 @@
 
 <script src="js/game.js"></script>
 
-<!-- CRITICAL: Call ready() immediately to dismiss Farcaster splash -->
+<!-- Farcaster SDK with timeout -->
 <script type="module">
 (async function() {
-    try {
+    const timeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('SDK timeout')), 3000)
+    );
+    
+    const loadSDK = (async () => {
         const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
         window.farcasterSDK = sdk;
-        await sdk.actions.ready(); // Dismiss splash immediately
-        console.log('SDK ready');
+        await sdk.actions.ready();
+        console.log('✅ SDK ready');
+    })();
+    
+    try {
+        await Promise.race([loadSDK, timeout]);
     } catch(e) {
-        console.log('Desktop mode');
-        // Not in Warpcast - force show content
+        console.log('⚠️ SDK failed, showing app anyway');
+        // Force show the app even if SDK fails
         document.body.style.opacity = '1';
         document.body.style.visibility = 'visible';
     }
@@ -163,8 +171,8 @@
 <script src="js/game.js"></script>
 
 
-
 </body>
 </html>
+
 
 
