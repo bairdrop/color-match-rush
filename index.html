@@ -136,7 +136,7 @@
 <script type="module">
 (async function() {
   try {
-    const { sdk } = await import('https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/+esm');
+    const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
     await sdk.actions.ready(); // This is CRITICAL: do not delay, do not put behind other logic
     window.farcasterSDK = sdk;
     console.log("✅ Farcaster SDK ready, splash screen should be gone");
@@ -168,3 +168,4 @@
 
 </body>
 </html>
+
