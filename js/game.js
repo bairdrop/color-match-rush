@@ -657,3 +657,10 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
+
+
+
+
+
+
