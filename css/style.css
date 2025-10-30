@@ -1,3 +1,17 @@
+/* Force hide any splash/loading screen */
+.splash-screen,
+.loading-screen,
+[class*="splash"],
+[class*="loading"] {
+    display: none !important;
+}
+
+body {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+
 /* ===== RESET & BASE ===== */
 * {
     margin: 0;
@@ -560,6 +574,7 @@ body {
 .connect-wallet-button:active {
     transform: translateY(0);
 }
+
 
 
 
