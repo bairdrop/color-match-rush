@@ -133,33 +133,36 @@
         </div>
     </div>
 
-<!-- Farcaster SDK -->
+<!-- Farcaster SDK - Only load in iframe (Warpcast) -->
 <script type="module">
-    (async () => {
-        try {
-            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-            window.farcasterSDK = sdk;
-            
-            // Try to call ready() but catch error if not in Warpcast
+    // Check if we're in an iframe (Warpcast) before loading SDK
+    const isInIframe = window.self !== window.top;
+    
+    if (isInIframe) {
+        // Only load SDK if in Warpcast
+        (async () => {
             try {
+                const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+                window.farcasterSDK = sdk;
                 await sdk.actions.ready();
-                console.log('✅ SDK ready called (Warpcast)');
-            } catch (readyError) {
-                // This is normal on desktop browser - just log it
-                console.log('ℹ️ Not in Warpcast (desktop mode)');
+                console.log('✅ SDK loaded (Warpcast)');
+            } catch (error) {
+                console.error('SDK error:', error);
             }
-            
-            console.log('✅ SDK initialized');
-        } catch (error) {
-            // SDK not available - this is OK on desktop
-            console.log('ℹ️ SDK not available (desktop browser mode)');
-        }
-    })();
+        })();
+    } else {
+        // Desktop browser - no SDK needed
+        console.log('ℹ️ Desktop mode - SDK skipped');
+    }
 </script>
+
+<script src="js/game.js"></script>
+
 
 
 </body>
 </html>
+
 
 
 
