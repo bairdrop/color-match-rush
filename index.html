@@ -137,7 +137,7 @@
 <script type="module">
     (async () => {
         try {
-            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+            const { sdk } = await import('https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/+esm');
             window.farcasterSDK = sdk;
             
             // CRITICAL: Call ready() to dismiss splash screen
@@ -153,3 +153,4 @@
 
 </body>
 </html>
+
