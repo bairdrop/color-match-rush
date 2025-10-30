@@ -133,20 +133,6 @@
         </div>
     </div>
 
-<script type="module">
-(async function() {
-  try {
-    const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-    await sdk.actions.ready(); // This is CRITICAL: do not delay, do not put behind other logic
-    window.farcasterSDK = sdk;
-    console.log("✅ Farcaster SDK ready, splash screen should be gone");
-  } catch (e) {
-    console.log("SDK load error:", e);
-  }
-})();
-</script>
-<script src="js/game.js"></script>
-
 
 <!-- Farcaster SDK -->
 <script type="module">
@@ -168,4 +154,5 @@
 
 </body>
 </html>
+
 
