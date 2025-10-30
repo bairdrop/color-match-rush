@@ -133,23 +133,32 @@
         </div>
     </div>
 
-<!-- Farcaster SDK -->
-<script type="module">
-    (async () => {
-        try {
-            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-            window.farcasterSDK = sdk;
-            
-            // CRITICAL: Call ready() to dismiss splash screen
-            await sdk.actions.ready();
-            console.log('✅ Farcaster SDK initialized and ready');
-        } catch (error) {
-            console.error('SDK init error:', error);
-        }
-    })();
+<!-- NO SDK on desktop - Load game immediately -->
+<script>
+    // Immediately hide any Farcaster splash screens
+    document.documentElement.style.setProperty('visibility', 'visible', 'important');
+    document.body.style.setProperty('visibility', 'visible', 'important');
+    document.body.style.setProperty('opacity', '1', 'important');
 </script>
 
 <script src="js/game.js"></script>
 
+<!-- Load SDK AFTER game is ready (non-blocking) -->
+<script type="module">
+    window.addEventListener('load', () => {
+        setTimeout(async () => {
+            try {
+                const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+                window.farcasterSDK = sdk;
+                if (window.self !== window.top) {
+                    await sdk.actions.ready();
+                }
+            } catch (e) {}
+        }, 100);
+    });
+</script>
+
+
 </body>
 </html>
+
