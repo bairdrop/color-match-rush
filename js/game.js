@@ -74,20 +74,36 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        // Try Farcaster provider first
-        let provider = await getFarcasterProvider();
+        let provider = null;
         
-        // Fallback to browser wallet
-        if (!provider) {
-            provider = await getEthereumProvider();
+        // Check if in Farcaster environment
+        const isFarcaster = window.self !== window.top;
+        
+        if (isFarcaster && window.farcasterSDK) {
+            try {
+                console.log('📱 Attempting Farcaster wallet connection...');
+                provider = await window.farcasterSDK.wallet.getEthereumProvider();
+                console.log('✅ Farcaster provider obtained');
+            } catch (error) {
+                console.error('Farcaster provider error:', error);
+                provider = null;
+            }
         }
         
-        // STOP if no provider found
+        // Fallback to browser wallet if Farcaster failed
+        if (!provider) {
+            console.log('🌐 Trying browser wallet...');
+            provider = window.ethereum;
+        }
+        
+        // STOP if still no provider
         if (!provider) {
             console.error('❌ No wallet provider found');
-            alert('No wallet found. Please connect a wallet to play.');
+            alert('Please open this app in Warpcast to use Farcaster wallet, or connect MetaMask in browser.');
             return false;
         }
+        
+        console.log('✅ Provider connected');
         
         const networkOk = await ensureCorrectNetwork(provider);
         if (!networkOk) {
@@ -727,3 +743,4 @@ function initializeGame() {
     console.log('✅ Game initialized with glass effect & leaderboard');
     drawInitialCanvas();
 }
+
