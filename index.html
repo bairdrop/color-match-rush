@@ -134,23 +134,18 @@
         </div>
     </div>
 
-    <!-- Load Farcaster SDK - CRITICAL FOR MOBILE -->
+<!-- Farcaster SDK -->
 <script type="module">
     (async () => {
         try {
-            console.log('🔄 Loading Farcaster SDK...');
-            const mod = await import('https://esm.sh/@farcaster/frame-sdk@0.0.5');
-            window.farcasterSDK = mod.sdk;
-            console.log('✅ SDK imported');
+            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+            window.farcasterSDK = sdk;
             
-            // THIS IS CRITICAL - Call ready() to dismiss splash screen
-            if (window.farcasterSDK && window.farcasterSDK.actions && window.farcasterSDK.actions.ready) {
-                await window.farcasterSDK.actions.ready();
-                console.log('✅ Splash screen dismissed');
-            }
+            // CRITICAL: Call ready() to dismiss splash screen
+            await sdk.actions.ready();
+            console.log('✅ Farcaster SDK initialized and ready');
         } catch (error) {
-            console.log('ℹ️ SDK load info:', error.message);
-            // Don't break the app if SDK fails
+            console.error('SDK init error:', error);
         }
     })();
 </script>
@@ -159,6 +154,7 @@
 
 </body>
 </html>
+
 
 
 
