@@ -78,67 +78,79 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        // Try Farcaster provider first (mobile)
-        let provider = await getFarcasterProvider();
+        const isFarcaster = window.self !== window.top;
         
-        // Fallback to desktop wallet (ethereum object)
-        if (!provider) {
-            provider = await getEthereumProvider();
-            if (!provider) {
-                console.log('⚠️ No provider available');
+        if (isFarcaster && window.farcasterSDK) {
+            // Use Farcaster SDK's native transaction method
+            try {
+                console.log('📱 Using Farcaster SDK sendTransaction...');
+                
+                const result = await window.farcasterSDK.actions.sendTransaction({
+                    to: PAYMENT_WALLET,
+                    value: ENTRY_FEE,
+                    chainId: CHAIN_ID
+                });
+                
+                console.log('✅ Payment successful! Result:', result);
+                alert('Payment successful! Starting game...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 return true;
+            } catch (error) {
+                console.error('Farcaster transaction error:', error);
+                if (error.code === 4001 || error.message.includes('rejected')) {
+                    alert('Payment cancelled by user');
+                } else {
+                    alert('Transaction failed: ' + (error.message || 'Unknown error'));
+                }
+                return false;
             }
-        }
-        
-        // Ensure correct network
-        const networkOk = await ensureCorrectNetwork(provider);
-        if (!networkOk) return false;
-        
-        let accounts;
-        try {
-            accounts = await provider.request({
-                method: 'eth_requestAccounts'
-            });
-        } catch (error) {
-            console.error('Account request error:', error);
-            return false;
-        }
-        
-        if (!accounts || accounts.length === 0) {
-            return false;
-        }
-        
-        const userAddress = accounts[0];
-        console.log('✅ Connected to:', userAddress);
-        
-        // Build transaction
-        const txParams = {
-            from: userAddress,
-            to: PAYMENT_WALLET,
-            value: ENTRY_FEE,
-            data: '0x'
-        };
-        
-        try {
-            const tx = await provider.request({
-                method: 'eth_sendTransaction',
-                params: [txParams]
-            });
+        } else {
+            // Browser fallback
+            console.log('🌐 Trying browser wallet...');
+            let provider = window.ethereum;
             
-            console.log('✅ Payment successful! Tx:', tx);
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            return true;
-        } catch (error) {
-            console.error('Transaction error:', error);
-            if (error.code === 4001) {
-                console.log('User rejected transaction');
-            } else {
-                alert('Transaction failed: ' + (error.message || error.code));
+            if (!provider) {
+                alert('Please open this app in Warpcast to use Farcaster wallet.');
+                return false;
             }
-            return false;
+            
+            try {
+                const accounts = await provider.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                if (!accounts || accounts.length === 0) {
+                    alert('No wallet connected.');
+                    return false;
+                }
+                
+                const userAddress = accounts[0];
+                console.log('✅ Connected to:', userAddress);
+                
+                const tx = await provider.request({
+                    method: 'eth_sendTransaction',
+                    params: [{
+                        from: userAddress,
+                        to: PAYMENT_WALLET,
+                        value: ENTRY_FEE,
+                        data: '0x',
+                        chainId: CHAIN_ID
+                    }]
+                });
+                
+                console.log('✅ Payment successful! Tx:', tx);
+                alert('Payment successful! Starting game...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return true;
+            } catch (error) {
+                console.error('Browser wallet error:', error);
+                alert('Transaction failed: ' + (error.message || 'Unknown error'));
+                return false;
+            }
         }
     } catch (error) {
         console.error('Payment flow error:', error);
+        alert('Payment error: ' + error.message);
         return false;
     }
 }
@@ -522,3 +534,4 @@ function initializeGame() {
 
     console.log('✅ Game initialized after payment');
 }
+
