@@ -1,26 +1,24 @@
+// SDK Initialization - IMMEDIATE
+(async function initSDK() {
+    try {
+        console.log('🚀 Loading SDK...');
+        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+        window.farcasterSDK = sdk;
+        
+        // IMMEDIATELY call ready() - this is critical
+        console.log('📱 Calling sdk.actions.ready()...');
+        await sdk.actions.ready();
+        console.log('✅ SDK ready - splash should be dismissed');
+    } catch (error) {
+        console.error('❌ SDK Error:', error);
+        // Even if SDK fails, we should still work
+    }
+})();
+
 const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
 const ENTRY_FEE = '0x9184e72a000';
 const GAME_DURATION = 15;
 const CHAIN_ID = '0x2105';
-
-// Initialize SDK and dismiss splash screen immediately
-async function initializeSDK() {
-    try {
-        console.log('🚀 Initializing Farcaster SDK...');
-        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-        window.farcasterSDK = sdk;
-        
-        // CRITICAL: Call ready() immediately to dismiss splash
-        await sdk.actions.ready();
-        console.log('✅ Farcaster SDK ready - splash dismissed');
-        
-        return true;
-    } catch (error) {
-        console.error('SDK init error:', error);
-        // Still return true to allow app to work without SDK
-        return false;
-    }
-}
 
 async function processPayment() {
     try {
@@ -33,14 +31,15 @@ async function processPayment() {
             try {
                 console.log('📱 Getting Farcaster provider...');
                 provider = await window.farcasterSDK.wallet.getEthereumProvider();
+                console.log('✅ Got Farcaster provider');
             } catch (error) {
-                console.warn('Farcaster provider unavailable:', error.message);
+                console.warn('⚠️ Farcaster provider unavailable:', error.message);
             }
         }
         
         // Fallback to browser MetaMask
-        if (!provider && window.ethereum) {
-            console.log('🌐 Using MetaMask...');
+        if (!provider && typeof window.ethereum !== 'undefined') {
+            console.log('🌐 Using browser wallet...');
             provider = window.ethereum;
         }
         
@@ -50,7 +49,7 @@ async function processPayment() {
         }
         
         // Request accounts
-        console.log('Requesting accounts...');
+        console.log('📝 Requesting accounts...');
         const accounts = await provider.request({
             method: 'eth_requestAccounts'
         });
@@ -60,8 +59,10 @@ async function processPayment() {
             return false;
         }
         
+        console.log('👛 Connected account:', accounts[0]);
+        
         // Send transaction
-        console.log('Sending transaction...');
+        console.log('💸 Sending transaction...');
         const tx = await provider.request({
             method: 'eth_sendTransaction',
             params: [{
@@ -76,67 +77,79 @@ async function processPayment() {
         return true;
         
     } catch (error) {
-        console.error('Payment error:', error);
+        console.error('❌ Payment error:', error);
         if (error.code === 4001) {
-            alert('Payment cancelled');
+            alert('❌ Payment cancelled');
         } else {
-            alert('Payment failed: ' + (error.message || 'Unknown error'));
+            alert('❌ Payment failed: ' + (error.message || 'Unknown error'));
         }
         return false;
     }
 }
 
 function goToGamePage() {
+    console.log('🎮 Navigating to game page...');
     document.getElementById('landingPage').classList.remove('active');
     document.getElementById('gamePage').classList.add('active');
 }
 
-// Main initialization
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🎮 DOM Content Loaded');
-    
-    // Initialize SDK first (dismisses splash)
-    await initializeSDK();
+// DOM Ready Handler
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOM Content Loaded');
     
     // Setup start button
     const startBtn = document.getElementById('landingStartBtn');
     if (startBtn) {
+        console.log('✅ Start button found');
         startBtn.addEventListener('click', async function(e) {
             e.preventDefault();
             console.log('🎮 START button clicked');
             
             const btn = this;
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = '⏳ Processing...';
+            btn.innerHTML = '⏳ Processing Payment...';
             btn.disabled = true;
             
             try {
                 const paid = await processPayment();
                 
                 if (paid) {
-                    console.log('✅ Payment successful');
+                    console.log('✅ Payment successful - starting game');
                     goToGamePage();
-                    setTimeout(() => initializeGame(), 100);
+                    setTimeout(() => {
+                        console.log('🎮 Initializing game...');
+                        initializeGame();
+                    }, 100);
                 } else {
-                    console.log('❌ Payment failed');
+                    console.log('❌ Payment failed or cancelled');
                     btn.innerHTML = originalHTML;
                     btn.disabled = false;
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Error in payment flow:', error);
                 btn.innerHTML = originalHTML;
                 btn.disabled = false;
             }
         });
+    } else {
+        console.error('❌ Start button not found!');
     }
 });
 
 function initializeGame() {
+    console.log('🎮 Game initialization starting...');
+    
     const canvas = document.getElementById('gameCanvas');
+    if (!canvas) {
+        console.error('❌ Canvas not found!');
+        return;
+    }
     
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
+    
+    console.log('📐 Canvas size:', canvas.width, 'x', canvas.height);
     
     const ctx = canvas.getContext('2d');
 
@@ -184,38 +197,15 @@ function initializeGame() {
             bestEl.textContent = bestScore;
         }
     } catch (e) {
-        console.warn('localStorage not available:', e);
+        console.warn('⚠️ localStorage not available:', e);
     }
 
-    // Safe audio loading (won't block if files don't exist)
-    const audio = {
-        correct: null,
-        wrong: null,
-        gameOver: null
-    };
-
-    try {
-        audio.correct = new Audio('sounds/correct.mp3');
-        audio.wrong = new Audio('sounds/wrong.mp3');
-        audio.gameOver = new Audio('sounds/gameover.mp3');
-        
-        Object.values(audio).forEach(function(sound) {
-            if (sound) {
-                sound.volume = 0.3;
-                sound.addEventListener('error', function() {
-                    console.warn('Audio file not found');
-                });
-            }
-        });
-    } catch (e) {
-        console.warn('Audio initialization failed:', e);
-    }
-
+    // Safe audio loading
     function playSound(soundName) {
         try {
-            if (audio[soundName]) {
-                audio[soundName].play().catch(() => {});
-            }
+            const audio = new Audio('sounds/' + soundName + '.mp3');
+            audio.volume = 0.3;
+            audio.play().catch(() => {});
         } catch (e) {
             // Silently fail
         }
@@ -611,7 +601,7 @@ function initializeGame() {
                 return;
             }
             
-            const text = `🎨 I just scored ${scoreValue} points in Color Match Rush! Can you beat me? 🎮\n\nhttps://farcaster.xyz/miniapps/t3c6bbKz1n15/color-match-rush`;
+            const text = `🎨 I just scored ${scoreValue} points in Color Match Rush! Can you beat me? 🎮\n\nhttps://color-match-rush.vercel.app`;
             
             await window.farcasterSDK.actions.openUrl('https://warpcast.com/~/compose?text=' + encodeURIComponent(text));
             console.log('✅ Cast opened');
@@ -624,7 +614,7 @@ function initializeGame() {
     function endGame() {
         gameRunning = false;
         clearInterval(timerInterval);
-        playSound('gameOver');
+        playSound('gameover');
 
         gamesPlayed++;
         lastScore = score;
@@ -701,6 +691,6 @@ function initializeGame() {
         leaderboardModal.classList.add('hidden');
     });
 
-    console.log('✅ Game initialized');
+    console.log('✅ Game fully initialized and ready');
     drawInitialCanvas();
 }
