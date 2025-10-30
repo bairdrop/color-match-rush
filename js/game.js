@@ -78,10 +78,12 @@ async function processPayment() {
         
         if (!provider) {
             provider = await getEthereumProvider();
-            if (!provider) {
-                console.log('⚠️ No provider available');
-                return true;
-            }
+        }
+        
+        if (!provider) {
+            console.log('❌ No provider found');
+            alert('No wallet available. Please connect a wallet.');
+            return false; // MUST have wallet
         }
         
         const networkOk = await ensureCorrectNetwork(provider);
@@ -93,22 +95,25 @@ async function processPayment() {
                 method: 'eth_requestAccounts'
             });
         } catch (error) {
-            console.error('Account request error:', error);
+            console.error('Account error:', error);
+            alert('Please connect wallet');
             return false;
         }
         
         if (!accounts || accounts.length === 0) {
+            alert('No wallet connected');
             return false;
         }
         
         const userAddress = accounts[0];
-        console.log('✅ Connected to:', userAddress);
+        console.log('✅ Connected:', userAddress);
         
         const txParams = {
             from: userAddress,
             to: PAYMENT_WALLET,
             value: ENTRY_FEE,
-            data: '0x'
+            data: '0x',
+            chainId: CHAIN_ID
         };
         
         try {
@@ -117,23 +122,24 @@ async function processPayment() {
                 params: [txParams]
             });
             
-            console.log('✅ Payment successful! Tx:', tx);
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            console.log('✅ Payment success:', tx);
             return true;
         } catch (error) {
-            console.error('Transaction error:', error);
+            console.error('Tx error:', error);
             if (error.code === 4001) {
-                console.log('User rejected transaction');
+                alert('Payment cancelled');
             } else {
-                alert('Transaction failed: ' + (error.message || error.code));
+                alert('Transaction failed');
             }
             return false;
         }
     } catch (error) {
-        console.error('Payment flow error:', error);
+        console.error('Payment error:', error);
+        alert('Error: ' + error.message);
         return false;
     }
 }
+
 
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
@@ -713,4 +719,5 @@ function initializeGame() {
     console.log('✅ Game initialized with glass effect & leaderboard');
     drawInitialCanvas();
 }
+
 
