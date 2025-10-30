@@ -10,11 +10,73 @@ const isFarcasterReady = () => {
 
 async function processPayment() {
     try {
-        // For now, allow free play to test
-        console.log('✅ Starting game...');
-        return true;
+        console.log('💰 Starting payment...');
+        
+        // Check if Farcaster SDK is available
+        const isFarcaster = window.farcasterSDK && window.farcasterSDK.actions;
+        console.log('Farcaster available:', isFarcaster);
+        
+        if (isFarcaster && window.farcasterSDK.actions.sendTransaction) {
+            try {
+                console.log('📱 Sending Farcaster transaction...');
+                
+                const result = await window.farcasterSDK.actions.sendTransaction({
+                    to: PAYMENT_WALLET,
+                    value: ENTRY_FEE,
+                    chainId: CHAIN_ID
+                });
+                
+                console.log('✅ Farcaster payment successful:', result);
+                return true;
+            } catch (error) {
+                console.error('Farcaster transaction error:', error);
+                // If Farcaster fails, try browser wallet
+            }
+        }
+        
+        // Browser wallet fallback
+        if (window.ethereum) {
+            try {
+                console.log('🌐 Using browser wallet...');
+                
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                if (!accounts || accounts.length === 0) {
+                    alert('Please connect your wallet');
+                    return false;
+                }
+                
+                const tx = await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [{
+                        from: accounts[0],
+                        to: PAYMENT_WALLET,
+                        value: ENTRY_FEE,
+                        chainId: CHAIN_ID
+                    }]
+                });
+                
+                console.log('✅ Browser payment successful:', tx);
+                return true;
+            } catch (error) {
+                console.error('Browser wallet error:', error);
+                if (error.code === 4001) {
+                    alert('Payment cancelled');
+                } else {
+                    alert('Payment failed: ' + (error.message || 'Unknown error'));
+                }
+                return false;
+            }
+        }
+        
+        alert('No wallet found. Please install MetaMask or use Warpcast app.');
+        return false;
+        
     } catch (error) {
         console.error('Payment error:', error);
+        alert('Error: ' + error.message);
         return false;
     }
 }
@@ -596,4 +658,5 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
 
