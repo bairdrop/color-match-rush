@@ -427,39 +427,64 @@ body {
 }
 
 /* ===== LEADERBOARD MODAL ===== */
+.leaderboard-container {
+    background: linear-gradient(135deg, #2d1b69 0%, #4a2870 100%);
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.leaderboard-container h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+}
+
+.leaderboard-list {
+    margin: 20px 0;
+}
+
 .leaderboard-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    margin: 8px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .leaderboard-rank {
+    font-size: 24px;
     font-weight: bold;
-    color: #a0b0ff;
-    min-width: 60px;
-    text-align: left;
-}
-
-.leaderboard-username {
-    flex: 1;
-    color: #ffffff;
-    font-weight: 500;
+    width: 40px;
     text-align: center;
-    margin: 0 10px;
+    background: linear-gradient(135deg, #667eea 0%, #ff006e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .leaderboard-score {
+    font-size: 20px;
     font-weight: bold;
-    color: #ffd700;
-    min-width: 80px;
-    text-align: right;
+    color: white;
 }
 
+.leaderboard-date {
+    font-size: 10px;
+    color: #999;
+    text-align: right;
+}
 
 /* ===== CREDIT LINE ===== */
 .credit-line {
@@ -535,7 +560,6 @@ body {
 .connect-wallet-button:active {
     transform: translateY(0);
 }
-
 
 
 
