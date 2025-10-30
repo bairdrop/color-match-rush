@@ -72,15 +72,9 @@ async function ensureCorrectNetwork(provider) {
 
 async function processPayment() {
     try {
-        console.log('💰 Starting payment...');
+        console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        // On mobile Warpcast - just allow entry (payment handled via cast/tips)
-        if (window.farcasterSDK && window.farcasterSDK.actions) {
-            console.log('✅ Warpcast detected - game access granted');
-            return true; // Allow play on Warpcast
-        }
-        
-        // Desktop - require MetaMask
+        // Desktop MetaMask payment
         if (window.ethereum) {
             try {
                 console.log('🌐 Using browser wallet...');
@@ -108,21 +102,25 @@ async function processPayment() {
                 return true;
             } catch (error) {
                 console.error('Browser wallet error:', error);
-                alert('Payment failed');
+                if (error.code === 4001) {
+                    alert('Payment cancelled');
+                } else {
+                    alert('Payment failed: ' + (error.message || 'Unknown'));
+                }
                 return false;
             }
         }
         
-        alert('Please open in Warpcast or use MetaMask');
+        // Mobile - show message to pay via Warpcast
+        alert('⚠️ Payment Required\n\nOpen in Warpcast app to pay and play');
         return false;
         
     } catch (error) {
         console.error('Payment error:', error);
+        alert('Error: ' + error.message);
         return false;
     }
 }
-
-
 
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
@@ -732,5 +730,6 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
 
 
