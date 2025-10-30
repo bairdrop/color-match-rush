@@ -19,9 +19,9 @@
             
             <!-- Top Section: App Icon & Name & Description -->
             <div class="landing-top">
-    <img src="icon.png" alt="Color Match Rush" class="app-icon">
-    <p class="app-description">Fast-paced arcade color matching game. Test your reflexes!</p>
-</div>
+                <div style="width: 150px; height: 150px; margin: 0 auto 30px auto; background: linear-gradient(135deg, #667eea 0%, #ff006e 100%); border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 60px; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);">🎨</div>
+                <p class="app-description">Fast-paced arcade color matching game. Test your reflexes!</p>
+            </div>
 
             <!-- Center: START Button (Divider) -->
             <button id="landingStartBtn" class="start-button">
@@ -42,7 +42,7 @@
                     <div class="feature-item">
                         <span class="feature-num">2</span>
                         <div class="feature-text">
-                            <p class="feature-title">⚡ 10 Seconds Challenge</p>
+                            <p class="feature-title">⚡ 15 Seconds Challenge</p>
                             <p class="feature-desc">Beat the clock for high scores</p>
                         </div>
                     </div>
@@ -87,11 +87,11 @@
                 </div>
                 <div class="timer-display">
                     <span class="label">TIME</span>
-                    <span class="value" id="timer">10</span>
+                    <span class="value" id="timer">15</span>
                 </div>
             </div>
 
-            <!-- Game Canvas (BIGGER) -->
+            <!-- Game Canvas -->
             <div class="game-section">
                 <canvas id="gameCanvas"></canvas>
             </div>
@@ -133,39 +133,7 @@
         </div>
     </div>
 
-<!-- Farcaster SDK -->
-<script type="module">
-    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-sdk.actions.ready();
-    (async () => {
-        try {
-            const { sdk } = await import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-            sdk.actions.ready();
-
-            
-            // CRITICAL: Call ready() to dismiss splash screen
-            await sdk.actions.ready();
-            console.log('✅ Farcaster SDK initialized and ready');
-        } catch (error) {
-            console.error('SDK init error:', error);
-        }
-    })();
-</script>
-
-<script src="js/game.js"></script>
-
+    <!-- Load game.js - it will handle SDK initialization -->
+    <script src="js/game.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
