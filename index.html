@@ -140,19 +140,27 @@
             const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
             window.farcasterSDK = sdk;
             
-            // CRITICAL: Call ready() to dismiss splash screen
-            await sdk.actions.ready();
-            console.log('✅ Farcaster SDK initialized and ready');
+            // Try to call ready() but catch error if not in Warpcast
+            try {
+                await sdk.actions.ready();
+                console.log('✅ SDK ready called (Warpcast)');
+            } catch (readyError) {
+                // This is normal on desktop browser - just log it
+                console.log('ℹ️ Not in Warpcast (desktop mode)');
+            }
+            
+            console.log('✅ SDK initialized');
         } catch (error) {
-            console.error('SDK init error:', error);
+            // SDK not available - this is OK on desktop
+            console.log('ℹ️ SDK not available (desktop browser mode)');
         }
     })();
 </script>
 
-<script src="js/game.js"></script>
 
 </body>
 </html>
+
 
 
 
