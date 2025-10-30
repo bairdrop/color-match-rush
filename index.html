@@ -135,6 +135,8 @@
 
 <!-- Farcaster SDK -->
 <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+sdk.actions.ready();
     (async () => {
         try {
             const { sdk } = await import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
@@ -154,6 +156,7 @@
 
 </body>
 </html>
+
 
 
 
