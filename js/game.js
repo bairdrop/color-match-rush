@@ -3,87 +3,9 @@ const ENTRY_FEE = '0x9184e72a000';
 const GAME_DURATION = 15;
 const CHAIN_ID = '0x2105';
 
-async function getFarcasterProvider() {
-    try {
-        if (!window.farcasterSDK) {
-            console.log('SDK not available');
-            return null;
-        }
-        
-        const provider = await window.farcasterSDK.wallet.getEthereumProvider();
-        return provider;
-    } catch (error) {
-        console.error('Provider error:', error);
-        return null;
-    }
-}
-
-async function getEthereumProvider() {
-    if (window.ethereum) {
-        return window.ethereum;
-    }
-    return null;
-}
-
-async function ensureCorrectNetwork(provider) {
-    try {
-        const currentChainId = await provider.request({
-            method: 'eth_chainId'
-        });
-        
-        console.log('Current chain:', currentChainId);
-        
-        if (currentChainId !== CHAIN_ID) {
-            try {
-                await provider.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: CHAIN_ID }]
-                });
-                console.log('✅ Switched to Base');
-            } catch (switchError) {
-                if (switchError.code === 4902) {
-                    await provider.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [{
-                            chainId: CHAIN_ID,
-                            chainName: 'Base',
-                            rpcUrls: ['https://mainnet.base.org/'],
-                            nativeCurrency: {
-                                name: 'Ether',
-                                symbol: 'ETH',
-                                decimals: 18
-                            },
-                            blockExplorerUrls: ['https://basescan.org/']
-                        }]
-                    });
-                    console.log('✅ Added Base network');
-                } else {
-                    throw switchError;
-                }
-            }
-        }
-        return true;
-    } catch (error) {
-        console.error('Network switch error:', error);
-        alert('Please switch to Base network in your wallet');
-        return false;
-    }
-}
-
 async function processPayment() {
-    console.log('✅ Game started!');
-    return true; // Just allow play
-}
-        
-        // Mobile - show message to pay via Warpcast
-        alert('⚠️ Payment Required\n\nOpen in Warpcast app to pay and play');
-        return false;
-        
-    } catch (error) {
-        console.error('Payment error:', error);
-        alert('Error: ' + error.message);
-        return false;
-    }
+    console.log('✅ Game starting...');
+    return true;
 }
 
 function goToGamePage() {
@@ -92,65 +14,16 @@ function goToGamePage() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Start button
-    document.getElementById('landingStartBtn').addEventListener('click', async function(e) {
-    e.preventDefault();
-    
-    const btn = this;
-    const originalText = btn.textContent;
-    btn.textContent = '⏳ Starting...';
-    btn.disabled = true;
-    
-    try {
-        const paid = await processPayment();
-        
-        if (paid) {
-            console.log('✅ Going to game page');
+    // Start button - FIXED
+    const startBtn = document.getElementById('landingStartBtn');
+    if (startBtn) {
+        startBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🎮 START button clicked');
             goToGamePage();
-            setTimeout(() => {
-                initializeGame();
-            }, 100);
-        } else {
-            console.log('❌ Payment failed');
-            btn.textContent = originalText;
-            btn.disabled = false;
-        }
-    } catch (error) {
-        console.error('Button click error:', error);
-        btn.textContent = originalText;
-        btn.disabled = false;
+            initializeGame();
+        });
     }
-});
-
-    // Connect Wallet button
-    document.getElementById('connectWalletBtn').addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        try {
-            // Try Farcaster first
-            if (window.farcasterSDK && window.farcasterSDK.actions) {
-                console.log('📱 Farcaster wallet available (in Warpcast)');
-                alert('✅ Farcaster wallet ready! Click START to play.');
-                return;
-            }
-            
-            // Try MetaMask
-            if (window.ethereum) {
-                const accounts = await window.ethereum.request({
-                    method: 'eth_requestAccounts'
-                });
-                
-                if (accounts && accounts.length > 0) {
-                    alert('✅ Connected: ' + accounts[0].substring(0, 6) + '...');
-                }
-            } else {
-                alert('❌ No wallet found.\n\nInstall MetaMask or open in Warpcast app.');
-            }
-        } catch (error) {
-            console.error('Connect wallet error:', error);
-            alert('Error: ' + error.message);
-        }
-    });
 });
 
 function initializeGame() {
@@ -701,9 +574,3 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
-
-
-
-
-
-
