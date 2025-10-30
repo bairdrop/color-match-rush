@@ -144,29 +144,42 @@
 
 <script src="js/game.js"></script>
 
-<!-- Farcaster SDK with timeout -->
-<script type="module">
-(async function() {
-    const timeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('SDK timeout')), 3000)
-    );
-    
-    const loadSDK = (async () => {
-        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-        window.farcasterSDK = sdk;
-        await sdk.actions.ready();
-        console.log('✅ SDK ready');
+<!-- Force dismiss Farcaster splash screen -->
+<script>
+    // IMMEDIATELY try to dismiss splash before anything else
+    (function() {
+        const dismissSplash = () => {
+            try {
+                if (window.parent && window.parent.postMessage) {
+                    window.parent.postMessage({ type: 'fc:ready' }, '*');
+                    window.parent.postMessage({ type: 'ready' }, '*');
+                }
+            } catch(e) {}
+        };
+        
+        dismissSplash();
+        setTimeout(dismissSplash, 100);
+        setTimeout(dismissSplash, 500);
+        setTimeout(dismissSplash, 1000);
     })();
-    
-    try {
-        await Promise.race([loadSDK, timeout]);
-    } catch(e) {
-        console.log('⚠️ SDK failed, showing app anyway');
-        // Force show the app even if SDK fails
-        document.body.style.opacity = '1';
-        document.body.style.visibility = 'visible';
-    }
-})();
+</script>
+
+<script type="module">
+    // Load SDK properly
+    (async () => {
+        try {
+            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+            window.farcasterSDK = sdk;
+            
+            // Call ready multiple times to ensure it works
+            if (sdk.actions && sdk.actions.ready) {
+                await sdk.actions.ready();
+                console.log('✅ SDK ready called');
+            }
+        } catch (error) {
+            console.log('SDK error (normal on desktop):', error.message);
+        }
+    })();
 </script>
 
 <script src="js/game.js"></script>
@@ -174,6 +187,7 @@
 
 </body>
 </html>
+
 
 
 
