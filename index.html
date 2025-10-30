@@ -133,28 +133,37 @@
         </div>
     </div>
     
-<!-- Load Farcaster SDK - OFFICIAL VERSION -->
+<!-- Load Farcaster SDK -->
 <script type="module">
-    import { sdk } from 'https://esm.sh/@farcaster/frame-sdk@0.0.5';
-    
-    window.farcasterSDK = sdk;
-    
-    // Call ready() immediately - works on both mobile and desktop
     (async () => {
         try {
-            await sdk.actions.ready();
-            console.log('✅ SDK ready');
+            // Import SDK
+            const { sdk } = await import('https://esm.sh/@farcaster/frame-sdk@0.0.5');
+            window.farcasterSDK = sdk;
+            
+            console.log('📦 Farcaster SDK loaded');
+            console.log('✅ SDK available:', !!window.farcasterSDK);
+            console.log('✅ sendTransaction available:', !!window.farcasterSDK?.actions?.sendTransaction);
+            
+            // Call ready on SDK
+            try {
+                await sdk.actions.ready();
+                console.log('✅ SDK ready() called successfully');
+            } catch (error) {
+                console.warn('SDK ready() warning:', error.message);
+            }
         } catch (error) {
-            console.warn('SDK ready failed (browser mode):', error);
-            // Continue anyway - this is normal in browser
+            console.error('❌ Failed to load Farcaster SDK:', error);
         }
     })();
 </script>
+
     
     <!-- Load game -->
     <script src="js/game.js"></script>
 </body>
 </html>
+
 
 
 
