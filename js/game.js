@@ -1,3 +1,25 @@
+// Wait for SDK to load before initializing game
+function waitForSDK() {
+    return new Promise((resolve) => {
+        const checkSDK = () => {
+            if (window.farcasterSDK) {
+                console.log('✅ SDK detected and ready');
+                resolve(true);
+            } else {
+                console.log('⏳ Waiting for SDK...');
+                setTimeout(checkSDK, 100);
+            }
+        };
+        checkSDK();
+    });
+}
+
+// Initialize when SDK is ready
+(async () => {
+    await waitForSDK();
+    console.log('🚀 SDK loaded, game ready');
+})();
+
 const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
 const ENTRY_FEE = '0x9184e72a000';
 const GAME_DURATION = 10;
@@ -539,5 +561,6 @@ function initializeGame() {
 
     console.log('✅ Game initialized after payment');
 }
+
 
 
