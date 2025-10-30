@@ -55,9 +55,9 @@ body {
 }
 
 .app-icon {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 20px;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 30px auto;
     display: block;
     object-fit: contain;
 }
@@ -560,6 +560,7 @@ body {
 .connect-wallet-button:active {
     transform: translateY(0);
 }
+
 
 
 
