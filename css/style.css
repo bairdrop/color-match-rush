@@ -1,3 +1,9 @@
+/* Force content visible on desktop */
+html, body {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 /* Force hide any splash/loading screen */
 .splash-screen,
 .loading-screen,
@@ -574,6 +580,7 @@ body {
 .connect-wallet-button:active {
     transform: translateY(0);
 }
+
 
 
 
