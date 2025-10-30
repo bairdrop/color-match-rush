@@ -71,66 +71,9 @@ async function ensureCorrectNetwork(provider) {
 }
 
 async function processPayment() {
-    try {
-        console.log('💰 Initiating payment...');
-        
-        // Get the wallet provider
-        let provider = window.ethereum;
-        
-        // For Warpcast mobile - use Farcaster SDK
-        if (window.farcasterSDK?.wallet?.getEthereumProvider) {
-            try {
-                provider = await window.farcasterSDK.wallet.getEthereumProvider();
-            } catch (e) {
-                console.log('Using fallback provider');
-            }
-        }
-        
-        if (!provider) {
-            alert('No wallet found. Please connect MetaMask or open in Warpcast.');
-            return false;
-        }
-        
-        // Request accounts
-        const accounts = await provider.request({
-            method: 'eth_requestAccounts'
-        });
-        
-        if (!accounts || accounts.length === 0) {
-            alert('Please connect your wallet');
-            return false;
-        }
-        
-        const from = accounts[0];
-        console.log('Connected account:', from);
-        
-        // Send transaction
-        const txHash = await provider.request({
-            method: 'eth_sendTransaction',
-            params: [{
-                from: from,
-                to: PAYMENT_WALLET,
-                value: ENTRY_FEE,
-                chainId: CHAIN_ID
-            }]
-        });
-        
-        console.log('✅ Payment successful! Tx:', txHash);
-        alert('✅ Payment confirmed! Starting game...');
-        return true;
-        
-    } catch (error) {
-        console.error('Payment error:', error);
-        
-        if (error.code === 4001) {
-            alert('Payment cancelled');
-        } else {
-            alert('Payment failed: ' + (error.message || 'Unknown error'));
-        }
-        return false;
-    }
+    console.log('✅ Game started!');
+    return true; // Just allow play
 }
-
         
         // Mobile - show message to pay via Warpcast
         alert('⚠️ Payment Required\n\nOpen in Warpcast app to pay and play');
@@ -751,6 +694,7 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
 
 
 
