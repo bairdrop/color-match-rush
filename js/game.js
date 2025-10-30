@@ -74,65 +74,69 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        let provider = await getFarcasterProvider();
-        
-        if (!provider) {
-            provider = await getEthereumProvider();
-        }
-        
-        if (!provider) {
-            console.log('❌ No provider found');
-            alert('No wallet available. Please connect a wallet.');
-            return false; // MUST have wallet
-        }
-        
-        const networkOk = await ensureCorrectNetwork(provider);
-        if (!networkOk) return false;
-        
-        let accounts;
-        try {
-            accounts = await provider.request({
-                method: 'eth_requestAccounts'
-            });
-        } catch (error) {
-            console.error('Account error:', error);
-            alert('Please connect wallet');
-            return false;
-        }
-        
-        if (!accounts || accounts.length === 0) {
-            alert('No wallet connected');
-            return false;
-        }
-        
-        const userAddress = accounts[0];
-        console.log('✅ Connected:', userAddress);
-        
-        const txParams = {
-            from: userAddress,
-            to: PAYMENT_WALLET,
-            value: ENTRY_FEE,
-            data: '0x',
-            chainId: CHAIN_ID
-        };
-        
-        try {
-            const tx = await provider.request({
-                method: 'eth_sendTransaction',
-                params: [txParams]
-            });
-            
-            console.log('✅ Payment success:', tx);
-            return true;
-        } catch (error) {
-            console.error('Tx error:', error);
-            if (error.code === 4001) {
-                alert('Payment cancelled');
-            } else {
-                alert('Transaction failed');
+        // Check if we're in Warpcast with Farcaster SDK
+        if (window.farcasterSDK && window.farcasterSDK.actions && window.farcasterSDK.actions.sendTransaction) {
+            try {
+                console.log('📱 Using Farcaster sendTransaction...');
+                
+                const result = await window.farcasterSDK.actions.sendTransaction({
+                    to: PAYMENT_WALLET,
+                    value: ENTRY_FEE,
+                    chainId: CHAIN_ID
+                });
+                
+                console.log('✅ Payment successful:', result);
+                return true;
+            } catch (error) {
+                console.error('Farcaster payment error:', error);
+                // Fallback to browser wallet if Farcaster fails
+                if (!window.ethereum) {
+                    alert('Transaction cancelled or failed');
+                    return false;
+                }
             }
-            return false;
         }
+        
+        // Browser wallet fallback (for desktop testing)
+        if (window.ethereum) {
+            try {
+                console.log('🌐 Using browser wallet...');
+                
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                if (!accounts || accounts.length === 0) {
+                    alert('Please connect your wallet');
+                    return false;
+                }
+                
+                const tx = await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [{
+                        from: accounts[0],
+                        to: PAYMENT_WALLET,
+                        value: ENTRY_FEE,
+                        chainId: CHAIN_ID
+                    }]
+                });
+                
+                console.log('✅ Payment successful:', tx);
+                return true;
+            } catch (error) {
+                console.error('Browser wallet error:', error);
+                if (error.code === 4001) {
+                    alert('Payment cancelled');
+                } else {
+                    alert('Payment failed: ' + (error.message || 'Unknown'));
+                }
+                return false;
+            }
+        }
+        
+        alert('No wallet found. Please open in Warpcast app.');
+        return false;
+        
     } catch (error) {
         console.error('Payment error:', error);
         alert('Error: ' + error.message);
@@ -719,5 +723,6 @@ function initializeGame() {
     console.log('✅ Game initialized with glass effect & leaderboard');
     drawInitialCanvas();
 }
+
 
 
