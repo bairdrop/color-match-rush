@@ -74,18 +74,26 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
+        // Try Farcaster provider first
         let provider = await getFarcasterProvider();
         
+        // Fallback to browser wallet
         if (!provider) {
             provider = await getEthereumProvider();
-            if (!provider) {
-                console.log('⚠️ No provider available - skipping payment for testing');
-                return true;
-            }
+        }
+        
+        // STOP if no provider found
+        if (!provider) {
+            console.error('❌ No wallet provider found');
+            alert('No wallet found. Please connect a wallet to play.');
+            return false;
         }
         
         const networkOk = await ensureCorrectNetwork(provider);
-        if (!networkOk) return false;
+        if (!networkOk) {
+            alert('Please switch to Base network');
+            return false;
+        }
         
         let accounts;
         try {
@@ -94,12 +102,12 @@ async function processPayment() {
             });
         } catch (error) {
             console.error('Account request error:', error);
-            alert('Please connect your wallet');
+            alert('Please connect your wallet to continue');
             return false;
         }
         
         if (!accounts || accounts.length === 0) {
-            alert('No wallet connected');
+            alert('No wallet connected. Please connect wallet.');
             return false;
         }
         
@@ -123,13 +131,13 @@ async function processPayment() {
             });
             
             console.log('✅ Payment successful! Tx:', tx);
+            alert('Payment successful! Starting game...');
             await new Promise(resolve => setTimeout(resolve, 1500));
             return true;
         } catch (error) {
             console.error('Transaction error:', error);
             if (error.code === 4001) {
-                console.log('User rejected transaction');
-                alert('Payment cancelled');
+                alert('Payment cancelled by user');
             } else {
                 alert('Transaction failed: ' + (error.message || 'Unknown error'));
             }
