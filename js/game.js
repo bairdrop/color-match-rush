@@ -94,26 +94,33 @@ function goToGamePage() {
 document.addEventListener('DOMContentLoaded', function() {
     // Start button
     document.getElementById('landingStartBtn').addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        const btn = this;
-        const originalText = btn.textContent;
-        btn.textContent = '⏳ Processing...';
-        btn.disabled = true;
-        
+    e.preventDefault();
+    
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = '⏳ Starting...';
+    btn.disabled = true;
+    
+    try {
         const paid = await processPayment();
         
         if (paid) {
-            console.log('✅ Payment done, going to game page');
-            await new Promise(resolve => setTimeout(resolve, 500));
+            console.log('✅ Going to game page');
             goToGamePage();
-            initializeGame();
+            setTimeout(() => {
+                initializeGame();
+            }, 100);
         } else {
-            console.log('❌ Payment cancelled');
+            console.log('❌ Payment failed');
             btn.textContent = originalText;
             btn.disabled = false;
         }
-    });
+    } catch (error) {
+        console.error('Button click error:', error);
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+});
 
     // Connect Wallet button
     document.getElementById('connectWalletBtn').addEventListener('click', async function(e) {
@@ -694,6 +701,7 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
 
 
 
