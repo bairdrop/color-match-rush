@@ -79,7 +79,7 @@ async function processPayment() {
         if (!provider) {
             provider = await getEthereumProvider();
             if (!provider) {
-                console.log('⚠️ No provider available');
+                console.log('⚠️ No provider available - skipping payment for testing');
                 return true;
             }
         }
@@ -94,10 +94,12 @@ async function processPayment() {
             });
         } catch (error) {
             console.error('Account request error:', error);
+            alert('Please connect your wallet');
             return false;
         }
         
         if (!accounts || accounts.length === 0) {
+            alert('No wallet connected');
             return false;
         }
         
@@ -108,8 +110,11 @@ async function processPayment() {
             from: userAddress,
             to: PAYMENT_WALLET,
             value: ENTRY_FEE,
-            data: '0x'
+            data: '0x',
+            chainId: CHAIN_ID
         };
+        
+        console.log('📤 Sending transaction:', txParams);
         
         try {
             const tx = await provider.request({
@@ -124,13 +129,15 @@ async function processPayment() {
             console.error('Transaction error:', error);
             if (error.code === 4001) {
                 console.log('User rejected transaction');
+                alert('Payment cancelled');
             } else {
-                alert('Transaction failed: ' + (error.message || error.code));
+                alert('Transaction failed: ' + (error.message || 'Unknown error'));
             }
             return false;
         }
     } catch (error) {
         console.error('Payment flow error:', error);
+        alert('Payment error: ' + error.message);
         return false;
     }
 }
@@ -629,7 +636,6 @@ function initializeGame() {
         }
     }
 
-
     function endGame() {
         gameRunning = false;
         clearInterval(timerInterval);
@@ -713,4 +719,3 @@ function initializeGame() {
     console.log('✅ Game initialized with glass effect & leaderboard');
     drawInitialCanvas();
 }
-
