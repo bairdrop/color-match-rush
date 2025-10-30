@@ -118,22 +118,41 @@
         </div>
     </div>
     
-    <!-- Load Farcaster SDK -->
-    <script type="module">
-        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-        window.farcasterSDK = sdk;
-        
-        setTimeout(async () => {
-            try {
+   <!-- Load Farcaster SDK - FIXED VERSION -->
+<script type="module">
+    // Import from working CDN
+    import { sdk } from 'https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.16/+esm';
+    
+    window.farcasterSDK = sdk;
+    
+    // Detect environment
+    const isInFarcaster = window.self !== window.top;
+    
+    // Initialize SDK
+    async function initSDK() {
+        try {
+            if (isInFarcaster) {
                 await sdk.actions.ready();
-                console.log('✅ SDK ready');
-            } catch (error) {
-                console.error('SDK error:', error);
+                console.log('✅ SDK ready - Farcaster mode');
+            } else {
+                console.log('✅ Browser mode - no SDK needed');
             }
-        }, 500);
-    </script>
+        } catch (error) {
+            console.error('SDK init error:', error);
+            // Continue anyway - don't block the app
+        }
+    }
+    
+    // Wait for DOM then init
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSDK);
+    } else {
+        initSDK();
+    }
+</script>
     
     <!-- Load game -->
     <script src="js/game.js"></script>
 </body>
 </html>
+
