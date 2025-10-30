@@ -68,41 +68,44 @@ async function processPayment() {
     }
 }
 
+
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
     document.getElementById('gamePage').classList.add('active');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Start button - FIXED
     const startBtn = document.getElementById('landingStartBtn');
     if (startBtn) {
         startBtn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            console.log('🎮 START button clicked');
-            
-            const btn = this;
-            const originalText = btn.textContent;
-            btn.textContent = '⏳ Starting...';
-            btn.disabled = true;
-            
-            try {
-                const paid = await processPayment();
-                
-                if (paid) {
-                    console.log('✅ Payment successful');
-                    goToGamePage();
-                    setTimeout(() => initializeGame(), 100);
-                } else {
-                    console.log('❌ Payment failed');
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        });
+    e.preventDefault();
+    console.log('🎮 START button clicked');
+    
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = '⏳ Processing...';
+    btn.disabled = true;
+    
+    try {
+        const paid = await processPayment();
+        
+        if (paid) {
+            console.log('✅ Payment successful');
+            goToGamePage();
+            setTimeout(() => initializeGame(), 100);
+        } else {
+            console.log('❌ Payment failed');
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+});
+
     }
 });
 
@@ -509,29 +512,12 @@ function initializeGame() {
         requestAnimationFrame(gameLoop);
     }
 
-    async function captureAndSaveUsername() {
-        try {
-            if (window.farcasterSDK && window.farcasterSDK.user) {
-                const user = await window.farcasterSDK.user.userData();
-                if (user && user.username) {
-                    localStorage.setItem('lastUsername', user.username);
-                    console.log('✅ Saved username:', user.username);
-                }
-            }
-        } catch (error) {
-            console.warn('Could not get Farcaster username:', error);
-        }
-    }
-
     function saveScore(scoreValue) {
         try {
             let scores = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-            
-            const username = localStorage.getItem('lastUsername') || 'Anonymous';
-            
             scores.push({
                 score: scoreValue,
-                username: username
+                date: new Date().toISOString()
             });
             
             scores.sort((a, b) => b.score - a.score);
@@ -554,14 +540,15 @@ function initializeGame() {
             }
             
             leaderboardList.innerHTML = scores.map((item, index) => {
+                const date = new Date(item.date);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
                 const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
-                const rank = index + 1;
                 
                 return `
                     <div class="leaderboard-item">
-                        <div class="leaderboard-rank">${medal} #${rank}</div>
-                        <div class="leaderboard-username">@${item.username}</div>
-                        <div class="leaderboard-score">${item.score}</div>
+                        <div class="leaderboard-rank">${medal} #${index + 1}</div>
+                        <div class="leaderboard-score">${item.score} pts</div>
+                        <div class="leaderboard-date">${formattedDate}</div>
                     </div>
                 `;
             }).join('');
@@ -587,7 +574,7 @@ function initializeGame() {
         }
     }
 
-    async function endGame() {
+    function endGame() {
         gameRunning = false;
         clearInterval(timerInterval);
         audio.gameOver.play().catch(function() {});
@@ -599,8 +586,6 @@ function initializeGame() {
         finalScoreEl.textContent = score;
         
         gameOverScreen.classList.remove('hidden');
-        
-        await captureAndSaveUsername();
         saveScore(score);
 
         if (score > bestScore) {
