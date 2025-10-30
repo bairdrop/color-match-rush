@@ -133,44 +133,33 @@
             </div>
         </div>
     </div>
-    
-<!-- Load Farcaster SDK - FIXED VERSION -->
+
+    <!-- Load Farcaster SDK - CRITICAL FOR MOBILE -->
 <script type="module">
-    // Import from working CDN
-    import { sdk } from 'https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.16/+esm';
-    
-    window.farcasterSDK = sdk;
-    
-    // Detect environment
-    const isInFarcaster = window.self !== window.top;
-    
-    // Initialize SDK
-    async function initSDK() {
+    (async () => {
         try {
-            if (isInFarcaster) {
-                await sdk.actions.ready();
-                console.log('✅ SDK ready - Farcaster mode');
-            } else {
-                console.log('✅ Browser mode - no SDK needed');
+            console.log('🔄 Loading Farcaster SDK...');
+            const mod = await import('https://esm.sh/@farcaster/frame-sdk@0.0.5');
+            window.farcasterSDK = mod.sdk;
+            console.log('✅ SDK imported');
+            
+            // THIS IS CRITICAL - Call ready() to dismiss splash screen
+            if (window.farcasterSDK && window.farcasterSDK.actions && window.farcasterSDK.actions.ready) {
+                await window.farcasterSDK.actions.ready();
+                console.log('✅ Splash screen dismissed');
             }
         } catch (error) {
-            console.error('SDK init error:', error);
-            // Continue anyway - don't block the app
+            console.log('ℹ️ SDK load info:', error.message);
+            // Don't break the app if SDK fails
         }
-    }
-    
-    // Wait for DOM then init
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSDK);
-    } else {
-        initSDK();
-    }
+    })();
 </script>
-    
-    <!-- Load game -->
-    <script src="js/game.js"></script>
+
+<script src="js/game.js"></script>
+
 </body>
 </html>
+
 
 
 
