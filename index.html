@@ -1,112 +1,155 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Color Match Rush</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #9059d6; }
-    #start { font-size: 2rem; padding: 1.3em 2em; border-radius: 12px; border: none; margin: 2em 0 1.5em 0; cursor: pointer; background: #fc0; color: #421e5a;}
-    #game { display: none; margin-top: 20px; flex-direction: column; align-items:center;}
-    #score { font-size: 2rem; color: #fc0; font-weight:bold; margin-bottom: 16px; }
-    .color-btn { width: 80px; height: 80px; font-size: 32px; border-radius: 50%; border: none; margin: 10px; cursor: pointer; }
-    #msg { font-size:18px; color:#fff; min-height:30px; margin-top:20px;}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Match Rush</title>
+    
+    <meta property="fc:frame" content="vNext">
+    <meta property="fc:frame:image" content="https://color-match-rush.vercel.app/preview.png">
+    
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1 style="color:white; font-weight:900; margin-top:-30px;">Color Match Rush</h1>
-  <button id="start">PAY & START</button>
-  <div id="game">
-    <div id="score">Score: <span id="scoreval">0</span></div>
-    <div id="target"></div>
-    <div>
-      <button class="color-btn" style="background:#e74c3c" data-c="red">🔴</button>
-      <button class="color-btn" style="background:#3498db" data-c="blue">🔵</button>
-      <button class="color-btn" style="background:#2ecc71" data-c="green">🟢</button>
-      <button class="color-btn" style="background:#ffd700" data-c="yellow">🟡</button>
+    <div class="app-container">
+        <!-- ===== LANDING PAGE (Page 1) ===== -->
+        <div id="landingPage" class="page active landing-page">
+            <!-- Credit Line -->
+            <p class="credit-line">Made By Pedrox</p>
+            
+            <!-- Top Section: App Icon & Name & Description -->
+            <div class="landing-top">
+    <img src="icon.png" alt="Color Match Rush" class="app-icon">
+    <p class="app-description">Fast-paced arcade color matching game. Test your reflexes!</p>
+</div>
+
+            <!-- Center: START Button (Divider) -->
+            <button id="landingStartBtn" class="start-button">
+                <span class="button-play-icon">▶</span>
+                <span class="button-text">START PLAYING</span>
+            </button>
+
+            <!-- Bottom Section: Features -->
+            <div class="landing-bottom">
+                <div class="features-list">
+                    <div class="feature-item">
+                        <span class="feature-num">1</span>
+                        <div class="feature-text">
+                            <p class="feature-title">🎮 Simple to Play</p>
+                            <p class="feature-desc">Tap the matching color button</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-num">2</span>
+                        <div class="feature-text">
+                            <p class="feature-title">⚡ 10 Seconds Challenge</p>
+                            <p class="feature-desc">Beat the clock for high scores</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-num">3</span>
+                        <div class="feature-text">
+                            <p class="feature-title">💎 Compete & Win</p>
+                            <p class="feature-desc">Challenge yourself with fast gameplay</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="info-text">
+                    Click START to begin. Pay 0.00001 ETH to play one round.
+                </p>
+            </div>
+        </div>
+
+        <!-- ===== GAME PAGE (Page 2) ===== -->
+        <div id="gamePage" class="page">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">BEST</div>
+                    <div class="stat-value" id="best">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">GAMES</div>
+                    <div class="stat-value" id="gamesPlayed">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">LAST</div>
+                    <div class="stat-value" id="lastScore">0</div>
+                </div>
+            </div>
+
+            <!-- Score & Timer Display -->
+            <div class="score-timer">
+                <div class="score-display">
+                    <span class="label">SCORE</span>
+                    <span class="value" id="score">0</span>
+                </div>
+                <div class="timer-display">
+                    <span class="label">TIME</span>
+                    <span class="value" id="timer">10</span>
+                </div>
+            </div>
+
+            <!-- Game Canvas (BIGGER) -->
+            <div class="game-section">
+                <canvas id="gameCanvas"></canvas>
+            </div>
+
+            <!-- Color Buttons -->
+            <div id="colorButtons" class="button-container">
+                <button class="color-btn" data-color="red" style="background: #e74c3c;"></button>
+                <button class="color-btn" data-color="blue" style="background: #3498db;"></button>
+                <button class="color-btn" data-color="green" style="background: #2ecc71;"></button>
+                <button class="color-btn" data-color="yellow" style="background: #f1c40f;"></button>
+            </div>
+
+            <!-- Start Game Button -->
+            <button id="gameStartBtn" class="start-button">▶ START GAME</button>
+        </div>
+
+        <!-- ===== GAME OVER SCREEN ===== -->
+        <div id="gameOverScreen" class="overlay hidden">
+            <h1>GAME OVER!</h1>
+            <div class="final-score">
+                <p class="label">Your Score</p>
+                <div class="score-value" id="finalScore">0</div>
+            </div>
+            
+            <button id="restartBtn" class="start-button">▶ PLAY AGAIN</button>
+            <button id="castScoreBtn" class="secondary-button">📢 CAST SCORE</button>
+            <button id="viewLeaderboardBtn" class="secondary-button">🏆 LEADERBOARD</button>
+        </div>
+
+        <!-- ===== LEADERBOARD MODAL ===== -->
+        <div id="leaderboardModal" class="overlay hidden">
+            <div class="leaderboard-container">
+                <h2>🏆 LEADERBOARD</h2>
+                <div id="leaderboardList" class="leaderboard-list">
+                    <!-- Will be populated by JS -->
+                </div>
+                <button id="closeLeaderboardBtn" class="secondary-button">✕ CLOSE</button>
+            </div>
+        </div>
     </div>
-    <div id="msg"></div>
-  </div>
 
-  <script type="module">
-    // Dismiss Farcaster splash ASAP (mobile)
-    let readyOnce = false;
-    async function farcasterReady() {
-      try {
-        if(readyOnce) return;
-        readyOnce = true;
-        const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-        await sdk.actions.ready();
-        window.farcasterSDK = sdk;
-      } catch(e){}
-    }
-    farcasterReady();
-
-    // Payment logic (Farcaster and MetaMask, Base chain, 0.00001 ETH)
-    async function payToPlay() {
-      const TO = "0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1";
-      const AMOUNT = "0x9184e72a000";
-      const CHAIN = "0x2105";
-      try {
-        if(window.farcasterSDK && window.farcasterSDK.wallet && window.farcasterSDK.wallet.getEthereumProvider) {
-          const provider = await window.farcasterSDK.wallet.getEthereumProvider();
-          const accounts = await provider.request({method:"eth_requestAccounts"});
-          await provider.request({method:'eth_sendTransaction',params:[{from:accounts[0],to:TO,value:AMOUNT,chainId:CHAIN}]});
-          return true;
+<!-- Farcaster SDK -->
+<script type="module">
+    (async () => {
+        try {
+            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
+            window.farcasterSDK = sdk;
+            
+            // CRITICAL: Call ready() to dismiss splash screen
+            await sdk.actions.ready();
+            console.log('✅ Farcaster SDK initialized and ready');
+        } catch (error) {
+            console.error('SDK init error:', error);
         }
-      } catch(e){}
-      if(window.ethereum) {
-        const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
-        await window.ethereum.request({method:"eth_sendTransaction",params:[{from:accounts[0],to:TO,value:AMOUNT,chainId:CHAIN}]});
-        return true;
-      }
-      alert("No payment method found. Please use Warpcast app or install MetaMask.");
-      return false;
-    }
+    })();
+</script>
 
-    // Game logic
-    let score = 0, playing = false, colors=["red","blue","green","yellow"], timer;
-    let targetColor = "";
-    function nextRound() {
-      targetColor = colors[Math.floor(Math.random()*4)];
-      document.getElementById('target').innerHTML = `<span style="font-size:2.2rem">Match: <b style="color:${targetColor}">${targetColor.toUpperCase()}</b></span>`;
-      document.getElementById('msg').textContent="";
-      // End game after 10 rounds
-      if(score>=10){
-        document.getElementById('msg').textContent="🏁 Game over! You scored "+score+"!";
-        playing = false;
-        document.getElementById('target').style.display = "none";
-        return;
-      }
-      playing = true;
-    }
-    document.querySelectorAll(".color-btn").forEach(btn=>{
-      btn.onclick = function() {
-        if(!playing) return;
-        if(this.getAttribute('data-c')===targetColor) {
-          score += 1;
-          document.getElementById('scoreval').textContent = score;
-          nextRound();
-        } else {
-          document.getElementById('msg').textContent="❌ Wrong! Try again.";
-        }
-      };
-    });
+<script src="js/game.js"></script>
 
-    document.getElementById("start").onclick = async function() {
-      this.disabled = true; this.textContent = "Processing payment...";
-      let paid = false;
-      try { paid = await payToPlay(); } catch(e){}
-      if(paid) {
-        this.style.display = "none";
-        document.getElementById("game").style.display = "flex";
-        score = 0;
-        document.getElementById('scoreval').textContent = score;
-        document.getElementById('target').style.display = "block";
-        nextRound();
-      } else {
-        this.disabled = false; this.textContent = "PAY & START";
-      }
-    };
-  </script>
 </body>
 </html>
