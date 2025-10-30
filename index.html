@@ -118,41 +118,46 @@
         </div>
     </div>
     
-   <!-- Load Farcaster SDK - FIXED VERSION -->
+  <!-- Load Farcaster SDK with proper ready() call -->
 <script type="module">
-    // Import from working CDN
-    import { sdk } from 'https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.16/+esm';
-    
-    window.farcasterSDK = sdk;
-    
-    // Detect environment
-    const isInFarcaster = window.self !== window.top;
-    
-    // Initialize SDK
-    async function initSDK() {
+    async function initializeApp() {
         try {
-            if (isInFarcaster) {
+            console.log('🚀 Initializing app...');
+            
+            // Import SDK
+            const module = await import('https://esm.sh/@farcaster/frame-sdk@0.0.5');
+            const { sdk } = module;
+            
+            window.farcasterSDK = sdk;
+            console.log('✅ SDK imported:', !!sdk);
+            
+            // THIS IS CRITICAL - Call ready() to dismiss splash screen
+            try {
                 await sdk.actions.ready();
-                console.log('✅ SDK ready - Farcaster mode');
-            } else {
-                console.log('✅ Browser mode - no SDK needed');
+                console.log('✅ Splash screen dismissed');
+            } catch (error) {
+                console.warn('⚠️ SDK ready() error (normal in browser):', error.message);
             }
+            
+            // Mark SDK as loaded
+            window.sdkReady = true;
+            console.log('✅ App fully initialized');
+            
         } catch (error) {
-            console.error('SDK init error:', error);
-            // Continue anyway - don't block the app
+            console.error('❌ Failed to initialize:', error);
+            // Still mark as ready even if SDK fails - allow browser mode
+            window.sdkReady = true;
         }
     }
     
-    // Wait for DOM then init
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSDK);
-    } else {
-        initSDK();
-    }
+    // Initialize immediately
+    initializeApp();
 </script>
+
     
     <!-- Load game -->
     <script src="js/game.js"></script>
 </body>
 </html>
+
 
