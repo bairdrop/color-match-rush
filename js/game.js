@@ -4,9 +4,65 @@ const GAME_DURATION = 15;
 const CHAIN_ID = '0x2105';
 
 async function processPayment() {
-    console.log('✅ Game starting...');
-    return true;
+    try {
+        console.log('💰 Starting payment on Base...');
+        
+        let provider = window.ethereum;
+        
+        // For Warpcast mobile - try Farcaster SDK
+        if (window.farcasterSDK && window.farcasterSDK.wallet && window.farcasterSDK.wallet.getEthereumProvider) {
+            try {
+                provider = await window.farcasterSDK.wallet.getEthereumProvider();
+                console.log('📱 Using Farcaster provider');
+            } catch (e) {
+                console.log('Farcaster provider failed, using MetaMask');
+            }
+        }
+        
+        if (!provider) {
+            alert('No wallet found. Please connect MetaMask or use Warpcast.');
+            return false;
+        }
+        
+        // Request accounts
+        const accounts = await provider.request({
+            method: 'eth_requestAccounts'
+        });
+        
+        if (!accounts || accounts.length === 0) {
+            alert('Please connect your wallet');
+            return false;
+        }
+        
+        const userAddress = accounts[0];
+        console.log('Connected:', userAddress);
+        
+        // Send payment transaction
+        const tx = await provider.request({
+            method: 'eth_sendTransaction',
+            params: [{
+                from: userAddress,
+                to: PAYMENT_WALLET,
+                value: ENTRY_FEE,
+                chainId: CHAIN_ID
+            }]
+        });
+        
+        console.log('✅ Payment successful:', tx);
+        return true;
+        
+    } catch (error) {
+        console.error('Payment error:', error);
+        
+        if (error.code === 4001) {
+            alert('Payment cancelled');
+        } else {
+            alert('Payment failed: ' + (error.message || 'Unknown error'));
+        }
+        return false;
+    }
 }
+
 
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
@@ -574,3 +630,4 @@ function initializeGame() {
     console.log('✅ Game initialized');
     drawInitialCanvas();
 }
+
