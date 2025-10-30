@@ -12,15 +12,13 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- ===== LANDING PAGE (Page 1) ===== -->
+        <!-- ===== LANDING PAGE (Page 1) - NO HEADER ===== -->
         <div id="landingPage" class="page active landing-page">
-            <!-- Credit Line -->
-            <p class="credit-line">Made By Pedrox</p>
-            
             <!-- Top Section: App Icon & Name & Description -->
             <div class="landing-top">
-               <img src="icon.png" alt="Color Match Rush" class="app-icon">
-               <p class="app-description">Fast-paced arcade color matching game. Test your reflexes!</p>
+                <img src="icon.png" alt="Color Match Rush" class="app-icon">
+                <h1 class="app-title">COLOR MATCH RUSH</h1>
+                <p class="app-description">Fast-paced arcade color matching game. Test your reflexes!</p>
             </div>
 
             <!-- Center: START Button (Divider) -->
@@ -117,58 +115,25 @@
             </div>
             
             <button id="restartBtn" class="start-button">▶ PLAY AGAIN</button>
-            <button id="castScoreBtn" class="secondary-button">📢 CAST SCORE</button>
-            <button id="viewLeaderboardBtn" class="secondary-button">🏆 LEADERBOARD</button>
-        </div>
-
-        <!-- ===== LEADERBOARD MODAL ===== -->
-        <div id="leaderboardModal" class="overlay hidden">
-            <div class="leaderboard-container">
-                <h2>🏆 LEADERBOARD</h2>
-                <div id="leaderboardList" class="leaderboard-list">
-                    <!-- Will be populated by JS -->
-                </div>
-                <button id="closeLeaderboardBtn" class="secondary-button">✕ CLOSE</button>
-            </div>
         </div>
     </div>
     
-<!-- Load Farcaster SDK -->
-<script type="module">
-    (async () => {
-        try {
-            // Import SDK
-            const { sdk } = await import('https://esm.sh/@farcaster/frame-sdk@0.0.5');
-            window.farcasterSDK = sdk;
-            
-            console.log('📦 Farcaster SDK loaded');
-            console.log('✅ SDK available:', !!window.farcasterSDK);
-            console.log('✅ sendTransaction available:', !!window.farcasterSDK?.actions?.sendTransaction);
-            
-            // Call ready on SDK
+    <!-- Load Farcaster SDK -->
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+        window.farcasterSDK = sdk;
+        
+        setTimeout(async () => {
             try {
                 await sdk.actions.ready();
-                console.log('✅ SDK ready() called successfully');
+                console.log('✅ SDK ready');
             } catch (error) {
-                console.warn('SDK ready() warning:', error.message);
+                console.error('SDK error:', error);
             }
-        } catch (error) {
-            console.error('❌ Failed to load Farcaster SDK:', error);
-        }
-    })();
-</script>
-
+        }, 500);
+    </script>
     
     <!-- Load game -->
     <script src="js/game.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
