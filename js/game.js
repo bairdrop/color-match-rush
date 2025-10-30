@@ -1,25 +1,3 @@
-// Wait for SDK to load before initializing game
-function waitForSDK() {
-    return new Promise((resolve) => {
-        const checkSDK = () => {
-            if (window.farcasterSDK) {
-                console.log('✅ SDK detected and ready');
-                resolve(true);
-            } else {
-                console.log('⏳ Waiting for SDK...');
-                setTimeout(checkSDK, 100);
-            }
-        };
-        checkSDK();
-    });
-}
-
-// Initialize when SDK is ready
-(async () => {
-    await waitForSDK();
-    console.log('🚀 SDK loaded, game ready');
-})();
-
 const PAYMENT_WALLET = '0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1';
 const ENTRY_FEE = '0x9184e72a000';
 const GAME_DURATION = 10;
@@ -100,68 +78,67 @@ async function processPayment() {
     try {
         console.log('💰 Starting payment... Fee: 0.00001 ETH');
         
-        // Wait for SDK if not loaded yet
-        await waitForSDK();
+        // Try Farcaster provider first (mobile)
+        let provider = await getFarcasterProvider();
         
-        // Try Farcaster SDK first
-        if (window.farcasterSDK && window.farcasterSDK.actions && window.farcasterSDK.actions.sendTransaction) {
-            try {
-                console.log('📱 Using Farcaster SDK...');
-                
-                const result = await window.farcasterSDK.actions.sendTransaction({
-                    to: PAYMENT_WALLET,
-                    value: ENTRY_FEE,
-                    chainId: CHAIN_ID
-                });
-                
-                console.log('✅ Payment successful! Result:', result);
+        // Fallback to desktop wallet (ethereum object)
+        if (!provider) {
+            provider = await getEthereumProvider();
+            if (!provider) {
+                console.log('⚠️ No provider available');
                 return true;
-            } catch (error) {
-                console.error('Farcaster transaction error:', error);
-                if (error.code === 4001 || error.message?.includes('rejected')) {
-                    alert('Payment cancelled');
-                } else {
-                    alert('Transaction failed: ' + (error.message || 'Unknown error'));
-                }
-                return false;
             }
         }
         
-        // Fallback to browser wallet
-        if (window.ethereum) {
-            try {
-                console.log('🌐 Using browser wallet...');
-                
-                const accounts = await window.ethereum.request({
-                    method: 'eth_requestAccounts'
-                });
-                
-                const tx = await window.ethereum.request({
-                    method: 'eth_sendTransaction',
-                    params: [{
-                        from: accounts[0],
-                        to: PAYMENT_WALLET,
-                        value: ENTRY_FEE,
-                        chainId: CHAIN_ID
-                    }]
-                });
-                
-                console.log('✅ Payment successful! Tx:', tx);
-                return true;
-            } catch (error) {
-                console.error('Browser wallet error:', error);
-                alert('Transaction failed: ' + (error.message || 'Unknown error'));
-                return false;
-            }
+        // Ensure correct network
+        const networkOk = await ensureCorrectNetwork(provider);
+        if (!networkOk) return false;
+        
+        let accounts;
+        try {
+            accounts = await provider.request({
+                method: 'eth_requestAccounts'
+            });
+        } catch (error) {
+            console.error('Account request error:', error);
+            return false;
         }
         
-        // No wallet found
-        alert('No wallet available. Please open in Warpcast app or install MetaMask.');
-        return false;
+        if (!accounts || accounts.length === 0) {
+            return false;
+        }
         
+        const userAddress = accounts[0];
+        console.log('✅ Connected to:', userAddress);
+        
+        // Build transaction
+        const txParams = {
+            from: userAddress,
+            to: PAYMENT_WALLET,
+            value: ENTRY_FEE,
+            data: '0x'
+        };
+        
+        try {
+            const tx = await provider.request({
+                method: 'eth_sendTransaction',
+                params: [txParams]
+            });
+            
+            console.log('✅ Payment successful! Tx:', tx);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            return true;
+        } catch (error) {
+            console.error('Transaction error:', error);
+            if (error.code === 4001) {
+                console.log('User rejected transaction');
+            } else {
+                alert('Transaction failed: ' + (error.message || error.code));
+            }
+            return false;
+        }
     } catch (error) {
-        console.error('Payment error:', error);
-        alert('Payment error: ' + error.message);
+        console.error('Payment flow error:', error);
         return false;
     }
 }
@@ -545,7 +522,3 @@ function initializeGame() {
 
     console.log('✅ Game initialized after payment');
 }
-
-
-
-
