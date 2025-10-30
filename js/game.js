@@ -144,13 +144,13 @@ async function processPayment() {
     }
 }
 
-
 function goToGamePage() {
     document.getElementById('landingPage').classList.remove('active');
     document.getElementById('gamePage').classList.add('active');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Start button
     document.getElementById('landingStartBtn').addEventListener('click', async function(e) {
         e.preventDefault();
         
@@ -170,6 +170,36 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('❌ Payment cancelled');
             btn.textContent = originalText;
             btn.disabled = false;
+        }
+    });
+
+    // Connect Wallet button
+    document.getElementById('connectWalletBtn').addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        try {
+            // Try Farcaster first
+            if (window.farcasterSDK && window.farcasterSDK.actions) {
+                console.log('📱 Farcaster wallet available (in Warpcast)');
+                alert('✅ Farcaster wallet ready! Click START to play.');
+                return;
+            }
+            
+            // Try MetaMask
+            if (window.ethereum) {
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                if (accounts && accounts.length > 0) {
+                    alert('✅ Connected: ' + accounts[0].substring(0, 6) + '...');
+                }
+            } else {
+                alert('❌ No wallet found.\n\nInstall MetaMask or open in Warpcast app.');
+            }
+        } catch (error) {
+            console.error('Connect wallet error:', error);
+            alert('Error: ' + error.message);
         }
     });
 });
@@ -639,7 +669,6 @@ function initializeGame() {
         }
     }
 
-
     function endGame() {
         gameRunning = false;
         clearInterval(timerInterval);
@@ -720,9 +749,6 @@ function initializeGame() {
         leaderboardModal.classList.add('hidden');
     });
 
-    console.log('✅ Game initialized with glass effect & leaderboard');
+    console.log('✅ Game initialized');
     drawInitialCanvas();
 }
-
-
-
