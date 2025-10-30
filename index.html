@@ -133,25 +133,23 @@
         </div>
     </div>
 
-<!-- Farcaster SDK -->
 <script type="module">
-    (async () => {
-        try {
-            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-            window.farcasterSDK = sdk;
-            
-            // CRITICAL: Call ready() to dismiss splash screen
-            await sdk.actions.ready();
-            console.log('✅ Farcaster SDK initialized and ready');
-        } catch (error) {
-            console.error('SDK init error:', error);
-        }
-    })();
+(async function() {
+  try {
+    const { sdk } = await import('https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/+esm');
+    await sdk.actions.ready(); // This is CRITICAL: do not delay, do not put behind other logic
+    window.farcasterSDK = sdk;
+    console.log("✅ Farcaster SDK ready, splash screen should be gone");
+  } catch (e) {
+    console.log("SDK load error:", e);
+  }
+})();
 </script>
-
 <script src="js/game.js"></script>
+
 
 </body>
 </html>
+
 
 
