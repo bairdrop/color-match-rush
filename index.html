@@ -411,11 +411,10 @@
   </div>
 
 <script type="module">
-import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-sdk.actions.ready();
+import{sdk}from'https://esm.sh/@farcaster/miniapp-sdk';sdk.actions.ready();
 
 /* ===== CONFIG ===== */
-const USE_BASE_SEPOLIA = false;
+const USE_BASE_SEPOLIA =!1;
 const RECIPIENT = "0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1";
 const AMOUNT_ETH = "0.00001";
 
@@ -759,3 +758,4 @@ window.addEventListener('unhandledrejection', e => console.error('Unhandled prom
 </script>
 </body>
 </html>
+
