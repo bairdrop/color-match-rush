@@ -7,12 +7,12 @@
   "miniapp": {
     "version": "1",
     "name": "Color Match Rush",
-    "iconUrl": "https://elpro-jade.vercel.app/icon.png",
-    "homeUrl": "https://elpro-jade.vercel.app/",
-    "imageUrl": "https://elpro-jade.vercel.app/cover.png",
+    "iconUrl": "https://color-match-rush.vercel.app//icon.png",
+    "homeUrl": "https://color-match-rush.vercel.app/",
+    "imageUrl": "https://color-match-rush.vercel.app//preview.png",
     "buttonTitle": "Play Now",
-    "splashImageUrl": "https://elpro-jade.vercel.app/splash.png",
-    "splashBackgroundColor": "#6b21a8",
+    "splashImageUrl": "https://color-match-rush.vercel.app//icon.png",
+    "splashBackgroundColor": "#6B21A8",
     "description": "Fast-paced arcade color matching game. Test your reflexes in 15 seconds!"
   }
 }
