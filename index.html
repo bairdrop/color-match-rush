@@ -8,7 +8,7 @@
   :root { color-scheme: dark; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+    background: linear-gradient(to top, #1e3a8a, #7c3aed);
     color: #e7ecf0;
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     margin: 0;
@@ -21,7 +21,7 @@
     inset: 0; 
     display: grid; 
     place-items: center; 
-    background: linear-gradient(to bottom, #6b21a8, #7e22ce, #6b21a8);
+    background: linear-gradient(to top, #1e3a8a, #7c3aed);
     padding: 20px; 
     z-index: 100;
     overflow-y: auto;
@@ -52,7 +52,7 @@
   }
   
   .logo-container img {
-    width: 320px;
+    width: 192px;
     max-width: 90%;
     height: auto;
     filter: drop-shadow(0 20px 60px rgba(0,0,0,0.4));
@@ -163,6 +163,7 @@
     border-radius: 12px;
     padding: 16px;
     backdrop-filter: blur(10px);
+    display: none !important;
   }
   
   #status b { color: #cde7d8; }
@@ -222,8 +223,9 @@
   }
   
   .game-over-card {
-    background: #1f2937;
-    border: 4px solid #ef4444;
+    background: rgba(109, 40, 217, 0.4);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(139, 92, 246, 0.5);
     border-radius: 24px;
     padding: 48px;
     text-align: center;
@@ -233,7 +235,7 @@
   .game-over-title {
     font-size: 56px;
     font-weight: 900;
-    color: #ef4444;
+    color: white;
     margin-bottom: 24px;
   }
   
@@ -268,7 +270,7 @@
   }
 
   @media (max-width: 640px) {
-    .logo-container img { width: 280px; }
+    .logo-container img { width: 168px; }
     .btn-start { font-size: 20px; padding: 16px 32px; }
     .info-title { font-size: 16px; }
     .game-hud { left: 16px; right: 16px; top: 16px; }
@@ -471,14 +473,14 @@ function initGame() {
 
   function setupScene() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a3d3d);
+    scene.background = null;
 
     const aspect = window.innerWidth / window.innerHeight;
     camera = new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 100);
     camera.position.set(0, 0, 10);
     camera.lookAt(0, 0, 0);
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('game-canvas').appendChild(renderer.domElement);
 
@@ -539,32 +541,26 @@ function initGame() {
       });
       const band = new THREE.Mesh(bandGeometry, bandMaterial);
       band.position.set(xPos, yPosition, 0);
-      band.userData = { 
-        colorIndex: colors.findIndex(c => c.hex === shuffledColors[index].hex),
-        checked: false 
-      };
-
-      const outlineGeometry = new THREE.BoxGeometry(2.5, 0.65, 0.11);
-      const outlineMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0x000000,
-        side: THREE.BackSide
-      });
-      const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
-      band.add(outline);
-
+      band.userData.colorIndex = colors.findIndex(c => c.hex === shuffledColors[index].hex);
       scene.add(band);
       bands.push(band);
     });
   }
 
-  function onMouseMove(e) {
-    const x = (e.clientX / window.innerWidth) * 2 - 1;
-    arrowTargetX = x * 4;
+  function onMouseMove(event) {
+    if (!gameActive) return;
+    const x = (event.clientX / window.innerWidth) * 2 - 1;
+    const aspect = window.innerWidth / window.innerHeight;
+    arrowTargetX = x * 5 * aspect;
   }
 
-  function onTouchMove(e) {
-    const x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-    arrowTargetX = x * 4;
+  function onTouchMove(event) {
+    if (!gameActive) return;
+    event.preventDefault();
+    const touch = event.touches[0];
+    const x = (touch.clientX / window.innerWidth) * 2 - 1;
+    const aspect = window.innerWidth / window.innerHeight;
+    arrowTargetX = x * 5 * aspect;
   }
 
   function onResize() {
@@ -575,74 +571,105 @@ function initGame() {
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
+  function updateTrailDots() {
+    trailDots.forEach((dot, i) => {
+      dot.position.x = arrow.position.x;
+      dot.material.color.setHex(colors[currentColorIndex].hex);
+    });
+  }
+
+  function checkCollision() {
+    bands.forEach((band, index) => {
+      if (Math.abs(band.position.y - arrow.position.y) < 0.3) {
+        if (Math.abs(band.position.x - arrow.position.x) < 1.2) {
+          if (band.userData.colorIndex === currentColorIndex && !band.userData.scored) {
+            score++;
+            scoreDisplay.textContent = score;
+            currentColorIndex = (currentColorIndex + 1) % colors.length;
+            arrow.material.color.setHex(colors[currentColorIndex].hex);
+            band.userData.scored = true;
+            
+            // Visual feedback
+            band.scale.set(1.2, 1.2, 1.2);
+            setTimeout(() => {
+              if (band.parent) band.scale.set(1, 1, 1);
+            }, 100);
+          } else if (!band.userData.scored) {
+            endGame();
+          }
+        }
+      }
+    });
+  }
+
   function animate() {
+    if (!gameActive) return;
     animationId = requestAnimationFrame(animate);
 
-    if (arrow && gameActive) {
-      arrow.position.x += (arrowTargetX - arrow.position.x) * 0.15;
-      arrow.position.x = Math.max(-3.5, Math.min(3.5, arrow.position.x));
+    // Move arrow smoothly
+    arrow.position.x += (arrowTargetX - arrow.position.x) * 0.15;
 
-      trailDots.forEach((dot, i) => {
-        dot.position.x += (arrow.position.x - dot.position.x) * (0.12 - i * 0.02);
-      });
+    // Move bands down
+    bands.forEach((band, index) => {
+      band.position.y -= speed;
+      
+      // Remove bands that are out of view and create new ones
+      if (band.position.y < -6) {
+        scene.remove(band);
+        bands.splice(index, 1);
+      }
+    });
 
-      bands.forEach((band, index) => {
-        band.position.y -= speed;
-
-        if (!band.userData.checked && band.position.y <= -3.2 && band.position.y >= -3.8) {
-          const bandLeft = band.position.x - 1.2;
-          const bandRight = band.position.x + 1.2;
-          const arrowX = arrow.position.x;
-
-          if (arrowX >= bandLeft && arrowX <= bandRight) {
-            if (band.userData.colorIndex === currentColorIndex) {
-              band.userData.checked = true;
-              score += 10;
-              scoreDisplay.textContent = score;
-              
-              currentColorIndex = (currentColorIndex + 1) % colors.length;
-              arrow.material.color.setHex(colors[currentColorIndex].hex);
-              
-              band.material.emissiveIntensity = 0.8;
-            } else {
-              endGame();
-            }
-          }
-        }
-
-        if (band.position.y < -6) {
-          scene.remove(band);
-          bands.splice(index, 1);
-          
-          const highestBand = bands.reduce((max, b) => Math.max(max, b.position.y), -10);
-          if (highestBand < 3) {
-            createBandSet(highestBand + bandSpacing);
-          }
-        }
-      });
-
-      speed = Math.min(0.15, 0.07 + score * 0.0003);
-      bandSpacing = Math.max(3, 8 - score * 0.03);
+    // Create new band sets
+    if (bands.length > 0) {
+      const topBand = bands[bands.length - 1];
+      if (topBand.position.y < 4) {
+        createBandSet(topBand.position.y + bandSpacing);
+      }
     }
 
+    updateTrailDots();
+    checkCollision();
     renderer.render(scene, camera);
   }
 
-  function startTimer() {
+  function startGame() {
+    score = 0;
     timeLeft = 15;
-    timerDisplay.textContent = timeLeft + 's';
+    currentColorIndex = 0;
+    gameActive = true;
+    
+    scoreDisplay.textContent = score;
+    timerDisplay.textContent = `${timeLeft}s`;
+    
+    arrow.position.set(0, -3.5, 0);
+    arrow.material.color.setHex(colors[0].hex);
+    arrowTargetX = 0;
+    
+    // Clear old bands
+    bands.forEach(band => scene.remove(band));
+    bands = [];
+    
+    // Create initial bands
+    for (let i = 0; i < 3; i++) {
+      createBandSet(4 + i * bandSpacing);
+    }
+    
+    // Start timer
     timerInterval = setInterval(() => {
       timeLeft--;
-      timerDisplay.textContent = timeLeft + 's';
+      timerDisplay.textContent = `${timeLeft}s`;
       if (timeLeft <= 0) {
         endGame();
       }
     }, 1000);
+    
+    animate();
   }
 
   function endGame() {
     gameActive = false;
-    if (timerInterval) clearInterval(timerInterval);
+    clearInterval(timerInterval);
     if (animationId) cancelAnimationFrame(animationId);
     
     finalScoreDisplay.textContent = score;
@@ -650,55 +677,35 @@ function initGame() {
   }
 
   function resetGame() {
-    bands.forEach(band => scene.remove(band));
-    bands = [];
-    
-    currentColorIndex = 0;
-    score = 0;
-    timeLeft = 15;
-    speed = 0.07;
-    bandSpacing = 8;
-    arrowTargetX = 0;
-    
-    scoreDisplay.textContent = '0';
-    timerDisplay.textContent = '15s';
-    
-    arrow.position.x = 0;
-    arrow.material.color.setHex(colors[0].hex);
-    
-    for (let i = 0; i < 3; i++) {
-      createBandSet(4 + i * bandSpacing);
-    }
-    
-    gameActive = true;
-    startTimer();
-    animate();
+    gameOverOverlay.classList.add('hidden');
+    gameContainer.classList.add('hidden');
+    introOverlay.classList.remove('hidden');
   }
 
-  // Start game after payment
-  playBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    payThen(() => {
+  // Initialize
+  setupScene();
+  animate();
+
+  // Event listeners
+  playBtn.addEventListener('click', () => {
+    payThen(async () => {
       introOverlay.classList.add('hidden');
       gameContainer.classList.remove('hidden');
-      setupScene();
-      resetGame();
+      startGame();
     }, playBtn);
   });
 
-  // Play again after payment
-  playAgainBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    payThen(() => {
-      gameOverOverlay.classList.add('hidden');
+  playAgainBtn.addEventListener('click', () => {
+    payThen(async () => {
       resetGame();
+      setTimeout(() => {
+        introOverlay.classList.add('hidden');
+        gameContainer.classList.remove('hidden');
+        startGame();
+      }, 100);
     }, playAgainBtn);
   });
 }
-
-// Error handling
-window.addEventListener('error', e => console.error('Error:', e.error || e));
-window.addEventListener('unhandledrejection', e => console.error('Unhandled promise:', e.reason));
 </script>
 </body>
 </html>
