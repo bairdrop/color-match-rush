@@ -4,16 +4,15 @@
     "payload": "eyJkb21haW4iOiJjb2xvci1tYXRjaC1ydXNoLnZlcmNlbC5hcHAifQ",
     "signature": "kdz/VvS+w61SEyrauYHEUybNNf/OL+OoTi5ZVhnTonYmpnnHiNLPrFfFI5C+g3EYJChafvLyxe9FMjG2LUER9Rs="
   },
-  "frame": {
-    "version": "next",
-    "name": "Color Match Rush",
-    "iconUrl": "https://color-match-rush.vercel.app/icon.png",
-    "splashImageUrl": "https://color-match-rush.vercel.app/preview.png",
-    "splashBackgroundColor": "#667eea",
-    "homeUrl": "https://color-match-rush.vercel.app/",
-    "webhookUrl": "https://color-match-rush.vercel.app/api/webhook"
-  },
-  "baseBuilder": {
-    "ownerAddress": "0x9A1D81Db96202D1F3373aBA39b9901520ca1b4cd"
+  "miniapp": {
+    "version": "1",
+    "name": "Farcaster Game",
+    "iconUrl": "https://cdn-0001.qstv.on.epicgames.com/iPRBUOWfQjitwrQOkG/image/landscape_comp.jpeg",
+    "homeUrl": "https://game-farcaster.vercel.app/",
+    "imageUrl": "https://raw.githubusercontent.com/enchanted-assets/public/main/images/tetris-cover.png",
+    "buttonTitle": "Play Now",
+    "splashImageUrl": "https://raw.githubusercontent.com/enchanted-assets/public/main/images/tetris-splash.png",
+    "splashBackgroundColor": "#000000",
+    "description": "Play a fun web game directly in Farcaster!"
   }
 }
