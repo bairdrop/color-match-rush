@@ -1,166 +1,704 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Match Rush</title>
-    
-    <meta property="fc:frame" content="vNext">
-    <meta property="fc:frame:image" content="https://color-match-rush.vercel.app/preview.png">
-    
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🎮 Color Match Rush – Farcaster Mini App</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+    color: #e7ecf0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  .overlay { 
+    position: fixed; 
+    inset: 0; 
+    display: grid; 
+    place-items: center; 
+    background: linear-gradient(to bottom, #6b21a8, #7e22ce, #6b21a8);
+    padding: 20px; 
+    z-index: 100;
+    overflow-y: auto;
+  }
+  
+  .hidden { display: none !important; }
+  
+  .card { 
+    background: transparent;
+    border: none;
+    border-radius: 14px; 
+    padding: 32px 20px; 
+    max-width: 600px;
+    width: 100%;
+  }
+  
+  .made-by {
+    color: #e9d5ff;
+    font-size: 14px;
+    margin-bottom: 24px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  
+  .logo-container {
+    margin-bottom: 32px;
+    text-align: center;
+  }
+  
+  .logo-container img {
+    width: 320px;
+    max-width: 90%;
+    height: auto;
+    filter: drop-shadow(0 20px 60px rgba(0,0,0,0.4));
+  }
+  
+  .tagline {
+    color: #e9d5ff;
+    font-size: 18px;
+    line-height: 1.5;
+    margin-bottom: 32px;
+    text-align: center;
+    padding: 0 20px;
+  }
+  
+  .btn-start {
+    width: 100%;
+    padding: 20px 48px;
+    background: white;
+    color: #7c3aed;
+    border: none;
+    border-radius: 16px;
+    font-weight: 900;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .btn-start:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 50px rgba(0,0,0,0.4);
+  }
+  
+  .btn-start:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .info-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .info-card {
+    background: rgba(109, 40, 217, 0.4);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(139, 92, 246, 0.5);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .info-number {
+    background: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #7c3aed;
+    flex-shrink: 0;
+  }
+  
+  .info-content {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .info-title {
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .info-desc {
+    color: #e9d5ff;
+    font-size: 14px;
+  }
+  
+  .footer-note {
+    color: #d8b4fe;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  
+  #status {
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 1.5;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    backdrop-filter: blur(10px);
+  }
+  
+  #status b { color: #cde7d8; }
+  #status .ok { color: #4ade80; }
+  #status .warn { color: #fbbf24; }
+  #status .err { color: #f87171; }
+  #status a { color: #86c6ff; text-decoration: none; }
+  
+  #game-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+  
+  .game-hud {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    right: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+  }
+  
+  .hud-item {
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(31, 41, 55, 0.8);
+    border-radius: 999px;
+    padding: 12px 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  
+  .hud-item p {
+    font-size: 28px;
+    font-weight: 900;
+    color: white;
+    margin: 0;
+  }
+  
+  #game-canvas {
+    width: 100%;
+    height: 100%;
+    cursor: none;
+  }
+  
+  .game-over-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+  }
+  
+  .game-over-card {
+    background: #1f2937;
+    border: 4px solid #ef4444;
+    border-radius: 24px;
+    padding: 48px;
+    text-align: center;
+    max-width: 500px;
+  }
+  
+  .game-over-title {
+    font-size: 56px;
+    font-weight: 900;
+    color: #ef4444;
+    margin-bottom: 24px;
+  }
+  
+  .game-over-score {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 32px;
+  }
+  
+  .btn-play-again {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, #06b6d4, #10b981);
+    color: #0a1929;
+    border: none;
+    border-radius: 16px;
+    font-weight: 900;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.4);
+    transition: all 0.2s;
+  }
+  
+  .btn-play-again:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 35px rgba(6, 182, 212, 0.5);
+  }
+  
+  .btn-play-again:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 640px) {
+    .logo-container img { width: 280px; }
+    .btn-start { font-size: 20px; padding: 16px 32px; }
+    .info-title { font-size: 16px; }
+    .game-hud { left: 16px; right: 16px; top: 16px; }
+    .hud-item { padding: 8px 16px; }
+    .hud-item p { font-size: 22px; }
+  }
+</style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- ===== LANDING PAGE (Page 1) ===== -->
-        <div id="landingPage" class="page active landing-page">
-            <!-- Credit Line -->
-            <p class="credit-line">Made By Pedrox</p>
-            
-            <!-- Top Section: App Icon & Name & Description -->
-            <div class="landing-top">
-    <img src="icon.png" alt="Color Match Rush" class="app-icon">
-    <p class="app-description">Fast-paced arcade color matching game. Test your reflexes!</p>
-</div>
-
-            <!-- Center: START Button (Divider) -->
-            <button id="landingStartBtn" class="start-button">
-                <span class="button-play-icon">▶</span>
-                <span class="button-text">START PLAYING</span>
-            </button>
-
-            <!-- Bottom Section: Features -->
-            <div class="landing-bottom">
-                <div class="features-list">
-                    <div class="feature-item">
-                        <span class="feature-num">1</span>
-                        <div class="feature-text">
-                            <p class="feature-title">🎮 Simple to Play</p>
-                            <p class="feature-desc">Tap the matching color button</p>
-                        </div>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-num">2</span>
-                        <div class="feature-text">
-                            <p class="feature-title">⚡ 10 Seconds Challenge</p>
-                            <p class="feature-desc">Beat the clock for high scores</p>
-                        </div>
-                    </div>
-                    <div class="feature-item">
-                        <span class="feature-num">3</span>
-                        <div class="feature-text">
-                            <p class="feature-title">💎 Compete & Win</p>
-                            <p class="feature-desc">Challenge yourself with fast gameplay</p>
-                        </div>
-                    </div>
-                </div>
-
-                <p class="info-text">
-                    Click START to begin. Pay 0.00001 ETH to play one round.
-                </p>
-            </div>
+  <!-- Intro Overlay -->
+  <div id="intro-overlay" class="overlay">
+    <div class="card" role="dialog" aria-modal="true">
+      <p class="made-by">Made By Pedrox</p>
+      
+      <div class="logo-container">
+        <img src="https://color-match-rush.vercel.app/icon.png" alt="Color Match Rush">
+      </div>
+      
+      <p class="tagline">
+        Fast-paced arcade color matching game.<br>
+        Test your reflexes!
+      </p>
+      
+      <button id="play" class="btn-start">
+        <span style="font-size: 32px;">▶</span>
+        <span>START PLAYING</span>
+      </button>
+      
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="info-number">1</div>
+          <div class="info-content">
+            <div class="info-title">🎮 Simple to Play</div>
+            <div class="info-desc">Tap the matching color button</div>
+          </div>
         </div>
-
-        <!-- ===== GAME PAGE (Page 2) ===== -->
-        <div id="gamePage" class="page">
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">BEST</div>
-                    <div class="stat-value" id="best">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">GAMES</div>
-                    <div class="stat-value" id="gamesPlayed">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">LAST</div>
-                    <div class="stat-value" id="lastScore">0</div>
-                </div>
-            </div>
-
-            <!-- Score & Timer Display -->
-            <div class="score-timer">
-                <div class="score-display">
-                    <span class="label">SCORE</span>
-                    <span class="value" id="score">0</span>
-                </div>
-                <div class="timer-display">
-                    <span class="label">TIME</span>
-                    <span class="value" id="timer">10</span>
-                </div>
-            </div>
-
-            <!-- Game Canvas (BIGGER) -->
-            <div class="game-section">
-                <canvas id="gameCanvas"></canvas>
-            </div>
-
-            <!-- Color Buttons -->
-            <div id="colorButtons" class="button-container">
-                <button class="color-btn" data-color="red" style="background: #e74c3c;"></button>
-                <button class="color-btn" data-color="blue" style="background: #3498db;"></button>
-                <button class="color-btn" data-color="green" style="background: #2ecc71;"></button>
-                <button class="color-btn" data-color="yellow" style="background: #f1c40f;"></button>
-            </div>
-
-            <!-- Start Game Button -->
-            <button id="gameStartBtn" class="start-button">▶ START GAME</button>
+        
+        <div class="info-card">
+          <div class="info-number">2</div>
+          <div class="info-content">
+            <div class="info-title">⚡ 15 Seconds Challenge</div>
+            <div class="info-desc">Beat the clock for high scores</div>
+          </div>
         </div>
-
-        <!-- ===== GAME OVER SCREEN ===== -->
-        <div id="gameOverScreen" class="overlay hidden">
-            <h1>GAME OVER!</h1>
-            <div class="final-score">
-                <p class="label">Your Score</p>
-                <div class="score-value" id="finalScore">0</div>
-            </div>
-            
-            <button id="restartBtn" class="start-button">▶ PLAY AGAIN</button>
-            <button id="castScoreBtn" class="secondary-button">📢 CAST SCORE</button>
-            <button id="viewLeaderboardBtn" class="secondary-button">🏆 LEADERBOARD</button>
+        
+        <div class="info-card">
+          <div class="info-number">3</div>
+          <div class="info-content">
+            <div class="info-title">💎 Compete & Win</div>
+            <div class="info-desc">Challenge yourself with fast gameplay</div>
+          </div>
         </div>
-
-        <!-- ===== LEADERBOARD MODAL ===== -->
-        <div id="leaderboardModal" class="overlay hidden">
-            <div class="leaderboard-container">
-                <h2>🏆 LEADERBOARD</h2>
-                <div id="leaderboardList" class="leaderboard-list">
-                    <!-- Will be populated by JS -->
-                </div>
-                <button id="closeLeaderboardBtn" class="secondary-button">✕ CLOSE</button>
-            </div>
-        </div>
+      </div>
+      
+      <p class="footer-note">
+        Click START to begin. Pay 0.00001 ETH to play one round.
+      </p>
+      
+      <div id="status" class="hidden"></div>
     </div>
+  </div>
 
-<!-- Farcaster SDK -->
+  <!-- Game Container -->
+  <div id="game-container" class="hidden">
+    <div class="game-hud">
+      <div class="hud-item">
+        <p id="score-display">0</p>
+      </div>
+      <div class="hud-item">
+        <p id="timer-display">15s</p>
+      </div>
+    </div>
+    <div id="game-canvas"></div>
+    
+    <!-- Game Over Overlay -->
+    <div id="game-over" class="game-over-overlay hidden">
+      <div class="game-over-card">
+        <h2 class="game-over-title">Game Over!</h2>
+        <p class="game-over-score">Score: <span id="final-score">0</span></p>
+        <button id="play-again" class="btn-play-again">💰 Pay & Play Again</button>
+      </div>
+    </div>
+  </div>
+
 <script type="module">
-    (async () => {
-        try {
-            const { sdk } = await import('https://esm.sh/@farcaster/miniapp-sdk@latest');
-            window.farcasterSDK = sdk;
-            
-            // CRITICAL: Call ready() to dismiss splash screen
-            await sdk.actions.ready();
-            console.log('✅ Farcaster SDK initialized and ready');
-        } catch (error) {
-            console.error('SDK init error:', error);
+import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+sdk.actions.ready();
+
+/* ===== CONFIG ===== */
+const USE_BASE_SEPOLIA = false;
+const RECIPIENT = "0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1";
+const AMOUNT_ETH = "0.00001";
+
+const BASE_MAINNET = { chainId: "0x2105",  explorer: "https://basescan.org/tx/" };
+const BASE_SEPOLIA = { chainId: "0x14a34", explorer: "https://sepolia.basescan.org/tx/" };
+const TARGET = USE_BASE_SEPOLIA ? BASE_SEPOLIA : BASE_MAINNET;
+
+/* ===== DOM ===== */
+const statusEl = document.getElementById('status');
+const playBtn = document.getElementById('play');
+const playAgainBtn = document.getElementById('play-again');
+const introOverlay = document.getElementById('intro-overlay');
+const gameContainer = document.getElementById('game-container');
+const gameOverOverlay = document.getElementById('game-over');
+const scoreDisplay = document.getElementById('score-display');
+const timerDisplay = document.getElementById('timer-display');
+const finalScoreDisplay = document.getElementById('final-score');
+
+const showStatus = () => statusEl.classList.remove('hidden');
+const addLine = html => { showStatus(); statusEl.insertAdjacentHTML('beforeend', `<div>${html}</div>`); };
+const clearStatus = () => statusEl.innerHTML = '';
+const disable = (el, yes=true) => { if (el) el.disabled = yes; };
+
+/* ===== Wallet Helpers ===== */
+function parseEther(x) {
+  const [w, f=""] = String(x).split('.');
+  const frac = (f + '0'.repeat(18)).slice(0, 18);
+  return '0x' + (BigInt(w) * 10n**18n + BigInt(frac)).toString(16);
+}
+
+async function getProvider() {
+  try {
+    const p = await sdk.wallet.getEthereumProvider();
+    if (p) return p;
+  } catch {}
+  return window.ethereum ?? null;
+}
+
+async function ensureChain(provider, chainId) {
+  const current = (await provider.request({ method: 'eth_chainId' }))?.toLowerCase();
+  if (current === chainId.toLowerCase()) return;
+  try {
+    await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId }] });
+  } catch (e) {
+    if (e?.code === 4902) {
+      await provider.request({ method: 'wallet_addEthereumChain', params: [{ chainId }] });
+      await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId }] });
+    } else { throw e; }
+  }
+}
+
+async function requiredPayment() {
+  clearStatus();
+  addLine(`<b>Step 1:</b> Locating wallet provider…`);
+  const provider = await getProvider();
+  if (!provider) {
+    addLine(`<span class="err">No wallet available.</span> Open in Farcaster or enable a wallet.`);
+    throw new Error('NO_PROVIDER');
+  }
+  addLine(`<span class="ok">Provider ready.</span>`);
+
+  addLine(`<b>Step 2:</b> Requesting accounts…`);
+  const [from] = await provider.request({ method: 'eth_requestAccounts' });
+  addLine(`<span class="ok">Account: ${from.slice(0,6)}…${from.slice(-4)}</span>`);
+
+  addLine(`<b>Step 3:</b> Switching to Base${USE_BASE_SEPOLIA?' Sepolia':''}…`);
+  await ensureChain(provider, TARGET.chainId);
+  addLine(`<span class="ok">On Base${USE_BASE_SEPOLIA?' Sepolia':''}.</span>`);
+
+  addLine(`<b>Step 4:</b> Sending ${AMOUNT_ETH} ETH to ${RECIPIENT.slice(0,6)}…${RECIPIENT.slice(-4)}…`);
+  const hash = await provider.request({
+    method: 'eth_sendTransaction',
+    params: [{ from, to: RECIPIENT, value: parseEther(AMOUNT_ETH) }]
+  });
+  addLine(`<span class="ok">TX sent.</span> <a target="_blank" rel="noopener" href="${TARGET.explorer}${hash}">View on Basescan</a>`);
+  return hash;
+}
+
+async function payThen(action, triggerBtn) {
+  try {
+    disable(triggerBtn, true);
+    await requiredPayment();
+    await action();
+  } catch (e) {
+    console.warn('Payment gate blocked action:', e);
+    addLine(`<span class="warn">Payment required. Please try again.</span>`);
+  } finally {
+    disable(triggerBtn, false);
+  }
+}
+
+/* ===== Import Three.js and Game Logic ===== */
+const script = document.createElement('script');
+script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+script.onload = initGame;
+document.head.appendChild(script);
+
+function initGame() {
+  const THREE = window.THREE;
+  let scene, camera, renderer, arrow, bands = [], trailDots = [];
+  let currentColorIndex = 0, score = 0, timeLeft = 15;
+  let speed = 0.07, bandSpacing = 8, arrowTargetX = 0;
+  let gameActive = false, animationId = null, timerInterval = null;
+
+  const colors = [
+    { name: 'cyan', hex: 0x00d4aa },
+    { name: 'yellow', hex: 0xffd700 },
+    { name: 'pink', hex: 0xff6b9d }
+  ];
+
+  function setupScene() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a3d3d);
+
+    const aspect = window.innerWidth / window.innerHeight;
+    camera = new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 100);
+    camera.position.set(0, 0, 10);
+    camera.lookAt(0, 0, 0);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('game-canvas').appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(0, 0, 5);
+    scene.add(directionalLight);
+
+    // Create arrow
+    const arrowShape = new THREE.Shape();
+    arrowShape.moveTo(0, 0.5);
+    arrowShape.lineTo(-0.4, -0.3);
+    arrowShape.lineTo(0.4, -0.3);
+    arrowShape.lineTo(0, 0.5);
+
+    const arrowGeometry = new THREE.ShapeGeometry(arrowShape);
+    const arrowMaterial = new THREE.MeshBasicMaterial({ color: colors[0].hex, side: THREE.DoubleSide });
+    arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+    arrow.position.set(0, -3.5, 0);
+    scene.add(arrow);
+
+    // Create trail dots
+    for (let i = 0; i < 4; i++) {
+      const dotGeometry = new THREE.CircleGeometry(0.08 - i * 0.015, 16);
+      const dotMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0xffffff, 
+        transparent: true, 
+        opacity: 0.8 - i * 0.15 
+      });
+      const dot = new THREE.Mesh(dotGeometry, dotMaterial);
+      dot.position.set(0, -3.5 - 0.3 * (i + 1), 0.01);
+      scene.add(dot);
+      trailDots.push(dot);
+    }
+
+    // Create initial bands
+    for (let i = 0; i < 3; i++) {
+      createBandSet(4 + i * bandSpacing);
+    }
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('touchmove', onTouchMove);
+    window.addEventListener('resize', onResize);
+  }
+
+  function createBandSet(yPosition) {
+    const positions = [-2.5, 0, 2.5];
+    const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
+
+    positions.forEach((xPos, index) => {
+      const bandGeometry = new THREE.BoxGeometry(2.4, 0.6, 0.1);
+      const bandMaterial = new THREE.MeshBasicMaterial({ 
+        color: shuffledColors[index].hex,
+        emissive: shuffledColors[index].hex,
+        emissiveIntensity: 0.3
+      });
+      const band = new THREE.Mesh(bandGeometry, bandMaterial);
+      band.position.set(xPos, yPosition, 0);
+      band.userData = { 
+        colorIndex: colors.findIndex(c => c.hex === shuffledColors[index].hex),
+        checked: false 
+      };
+
+      const outlineGeometry = new THREE.BoxGeometry(2.5, 0.65, 0.11);
+      const outlineMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0x000000,
+        side: THREE.BackSide
+      });
+      const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+      band.add(outline);
+
+      scene.add(band);
+      bands.push(band);
+    });
+  }
+
+  function onMouseMove(e) {
+    const x = (e.clientX / window.innerWidth) * 2 - 1;
+    arrowTargetX = x * 4;
+  }
+
+  function onTouchMove(e) {
+    const x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+    arrowTargetX = x * 4;
+  }
+
+  function onResize() {
+    const aspect = window.innerWidth / window.innerHeight;
+    camera.left = -5 * aspect;
+    camera.right = 5 * aspect;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  function animate() {
+    animationId = requestAnimationFrame(animate);
+
+    if (arrow && gameActive) {
+      arrow.position.x += (arrowTargetX - arrow.position.x) * 0.15;
+      arrow.position.x = Math.max(-3.5, Math.min(3.5, arrow.position.x));
+
+      trailDots.forEach((dot, i) => {
+        dot.position.x += (arrow.position.x - dot.position.x) * (0.12 - i * 0.02);
+      });
+
+      bands.forEach((band, index) => {
+        band.position.y -= speed;
+
+        if (!band.userData.checked && band.position.y <= -3.2 && band.position.y >= -3.8) {
+          const bandLeft = band.position.x - 1.2;
+          const bandRight = band.position.x + 1.2;
+          const arrowX = arrow.position.x;
+
+          if (arrowX >= bandLeft && arrowX <= bandRight) {
+            if (band.userData.colorIndex === currentColorIndex) {
+              band.userData.checked = true;
+              score += 10;
+              scoreDisplay.textContent = score;
+              
+              currentColorIndex = (currentColorIndex + 1) % colors.length;
+              arrow.material.color.setHex(colors[currentColorIndex].hex);
+              
+              band.material.emissiveIntensity = 0.8;
+            } else {
+              endGame();
+            }
+          }
         }
-    })();
+
+        if (band.position.y < -6) {
+          scene.remove(band);
+          bands.splice(index, 1);
+          
+          const highestBand = bands.reduce((max, b) => Math.max(max, b.position.y), -10);
+          if (highestBand < 3) {
+            createBandSet(highestBand + bandSpacing);
+          }
+        }
+      });
+
+      speed = Math.min(0.15, 0.07 + score * 0.0003);
+      bandSpacing = Math.max(3, 8 - score * 0.03);
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  function startTimer() {
+    timeLeft = 15;
+    timerDisplay.textContent = timeLeft + 's';
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = timeLeft + 's';
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+  }
+
+  function endGame() {
+    gameActive = false;
+    if (timerInterval) clearInterval(timerInterval);
+    if (animationId) cancelAnimationFrame(animationId);
+    
+    finalScoreDisplay.textContent = score;
+    gameOverOverlay.classList.remove('hidden');
+  }
+
+  function resetGame() {
+    bands.forEach(band => scene.remove(band));
+    bands = [];
+    
+    currentColorIndex = 0;
+    score = 0;
+    timeLeft = 15;
+    speed = 0.07;
+    bandSpacing = 8;
+    arrowTargetX = 0;
+    
+    scoreDisplay.textContent = '0';
+    timerDisplay.textContent = '15s';
+    
+    arrow.position.x = 0;
+    arrow.material.color.setHex(colors[0].hex);
+    
+    for (let i = 0; i < 3; i++) {
+      createBandSet(4 + i * bandSpacing);
+    }
+    
+    gameActive = true;
+    startTimer();
+    animate();
+  }
+
+  // Start game after payment
+  playBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    payThen(() => {
+      introOverlay.classList.add('hidden');
+      gameContainer.classList.remove('hidden');
+      setupScene();
+      resetGame();
+    }, playBtn);
+  });
+
+  // Play again after payment
+  playAgainBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    payThen(() => {
+      gameOverOverlay.classList.add('hidden');
+      resetGame();
+    }, playAgainBtn);
+  });
+}
+
+// Error handling
+window.addEventListener('error', e => console.error('Error:', e.error || e));
+window.addEventListener('unhandledrejection', e => console.error('Unhandled promise:', e.reason));
 </script>
-
-<script src="js/game.js"></script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
