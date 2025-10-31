@@ -355,8 +355,12 @@
   </div>
 
 <script type="module">
-import { sdk } from 'https://cdn.skypack.dev/@farcaster/miniapp-sdk';
-sdk.actions.ready();
+// Only call ready if sdk is available
+if (window.farcaster?.sdk) {
+  window.farcaster.sdk.actions.ready();
+} else if (window.sdk) {
+  window.sdk.actions.ready();
+}
 
 /* ===== CONFIG ===== */
 const USE_BASE_SEPOLIA = false;
@@ -715,4 +719,5 @@ window.addEventListener('unhandledrejection', e => console.error('Unhandled prom
 </script>
 </body>
 </html>
+
 
