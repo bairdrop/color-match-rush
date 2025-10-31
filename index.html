@@ -8,7 +8,7 @@
   :root { color-scheme: dark; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+    background: linear-gradient(to top, #1e3a8a 0%, #7c3aed 100%);
     color: #e7ecf0;
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     margin: 0;
@@ -21,7 +21,7 @@
     inset: 0; 
     display: grid; 
     place-items: center; 
-    background: linear-gradient(to bottom, #6b21a8, #7e22ce, #6b21a8);
+    background: linear-gradient(to top, #1e3a8a 0%, #7c3aed 100%);
     padding: 20px; 
     z-index: 100;
     overflow-y: auto;
@@ -52,7 +52,7 @@
   }
   
   .logo-container img {
-    width: 320px;
+    width: 128px;
     max-width: 90%;
     height: auto;
     filter: drop-shadow(0 20px 60px rgba(0,0,0,0.4));
@@ -176,6 +176,7 @@
     height: 100vh;
     position: relative;
     overflow: hidden;
+    background: linear-gradient(to top, #1e3a8a 0%, #7c3aed 100%);
   }
   
   .game-hud {
@@ -215,30 +216,32 @@
   
   #game-canvas canvas {
     display: block;
-    max-width: 100%;
-    max-height: 100%;
-    width: 100% !important;
+    max-width: 90% !important;
+    max-height: 90% !important;
+    width: auto !important;
     height: auto !important;
   }
   
   .game-over-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 20;
+    padding: 20px;
   }
   
   .game-over-card {
-    background: #1f2937;
-    border: 4px solid #ef4444;
+    background: transparent;
+    border: none;
     border-radius: 24px;
-    padding: 48px;
+    padding: 40px 20px;
     text-align: center;
     max-width: 500px;
+    width: 100%;
   }
   
   .game-over-title {
@@ -246,6 +249,7 @@
     font-weight: 900;
     color: #ef4444;
     margin-bottom: 24px;
+    text-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
   }
   
   .game-over-score {
@@ -255,22 +259,53 @@
     margin-bottom: 32px;
   }
   
+  .game-over-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  
+  .stat-card {
+    background: rgba(109, 40, 217, 0.4);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(139, 92, 246, 0.5);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .stat-label {
+    color: #e9d5ff;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .stat-value {
+    color: white;
+    font-size: 24px;
+    font-weight: 900;
+  }
+  
   .btn-play-again {
-    padding: 16px 48px;
-    background: linear-gradient(135deg, #06b6d4, #10b981);
-    color: #0a1929;
+    width: 100%;
+    padding: 20px 48px;
+    background: white;
+    color: #7c3aed;
     border: none;
     border-radius: 16px;
     font-weight: 900;
     font-size: 22px;
     cursor: pointer;
-    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     transition: all 0.2s;
   }
   
   .btn-play-again:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 10px 35px rgba(6, 182, 212, 0.5);
+    box-shadow: 0 12px 50px rgba(0,0,0,0.4);
   }
   
   .btn-play-again:disabled {
@@ -279,12 +314,15 @@
   }
 
   @media (max-width: 640px) {
-    .logo-container img { width: 280px; }
+    .logo-container img { width: 100px; }
     .btn-start { font-size: 20px; padding: 16px 32px; }
     .info-title { font-size: 16px; }
     .game-hud { left: 16px; right: 16px; top: 16px; }
     .hud-item { padding: 8px 16px; }
     .hud-item p { font-size: 22px; }
+    .game-over-title { font-size: 42px; }
+    .game-over-score { font-size: 28px; }
+    .btn-play-again { font-size: 18px; padding: 16px 32px; }
   }
 </style>
 </head>
@@ -359,6 +397,14 @@
       <div class="game-over-card">
         <h2 class="game-over-title">Game Over!</h2>
         <p class="game-over-score">Score: <span id="final-score">0</span></p>
+        
+        <div class="game-over-stats">
+          <div class="stat-card">
+            <span class="stat-label">🎯 Final Score</span>
+            <span class="stat-value" id="final-score-2">0</span>
+          </div>
+        </div>
+        
         <button id="play-again" class="btn-play-again">💰 Pay & Play Again</button>
       </div>
     </div>
@@ -387,6 +433,7 @@ const gameOverOverlay = document.getElementById('game-over');
 const scoreDisplay = document.getElementById('score-display');
 const timerDisplay = document.getElementById('timer-display');
 const finalScoreDisplay = document.getElementById('final-score');
+const finalScoreDisplay2 = document.getElementById('final-score-2');
 
 const showStatus = () => statusEl.classList.remove('hidden');
 const addLine = html => { showStatus(); statusEl.insertAdjacentHTML('beforeend', `<div>${html}</div>`); };
@@ -422,29 +469,18 @@ async function ensureChain(provider, chainId) {
 }
 
 async function requiredPayment() {
-  clearStatus();
-  addLine(`<b>Step 1:</b> Locating wallet provider…`);
   const provider = await getProvider();
   if (!provider) {
-    addLine(`<span class="err">No wallet available.</span> Open in Farcaster or enable a wallet.`);
     throw new Error('NO_PROVIDER');
   }
-  addLine(`<span class="ok">Provider ready.</span>`);
 
-  addLine(`<b>Step 2:</b> Requesting accounts…`);
   const [from] = await provider.request({ method: 'eth_requestAccounts' });
-  addLine(`<span class="ok">Account: ${from.slice(0,6)}…${from.slice(-4)}</span>`);
-
-  addLine(`<b>Step 3:</b> Switching to Base${USE_BASE_SEPOLIA?' Sepolia':''}…`);
   await ensureChain(provider, TARGET.chainId);
-  addLine(`<span class="ok">On Base${USE_BASE_SEPOLIA?' Sepolia':''}.</span>`);
 
-  addLine(`<b>Step 4:</b> Sending ${AMOUNT_ETH} ETH to ${RECIPIENT.slice(0,6)}…${RECIPIENT.slice(-4)}…`);
   const hash = await provider.request({
     method: 'eth_sendTransaction',
     params: [{ from, to: RECIPIENT, value: parseEther(AMOUNT_ETH) }]
   });
-  addLine(`<span class="ok">TX sent.</span> <a target="_blank" rel="noopener" href="${TARGET.explorer}${hash}">View on Basescan</a>`);
   return hash;
 }
 
@@ -455,7 +491,7 @@ async function payThen(action, triggerBtn) {
     await action();
   } catch (e) {
     console.warn('Payment gate blocked action:', e);
-    addLine(`<span class="warn">Payment required. Please try again.</span>`);
+    alert('Payment required. Please try again.');
   } finally {
     disable(triggerBtn, false);
   }
@@ -482,15 +518,18 @@ function initGame() {
 
   function setupScene() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a3d3d);
+    scene.background = new THREE.Color(0x1e3a8a);
 
     const aspect = window.innerWidth / window.innerHeight;
-    camera = new THREE.OrthographicCamera(-5 * aspect, 5 * aspect, 5, -5, 0.1, 100);
+    const viewSize = 4;
+    camera = new THREE.OrthographicCamera(-viewSize * aspect, viewSize * aspect, viewSize, -viewSize, 0.1, 100);
     camera.position.set(0, 0, 10);
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    const canvasWidth = Math.min(window.innerWidth * 0.9, 600);
+    const canvasHeight = Math.min(window.innerHeight * 0.9, 800);
+    renderer.setSize(canvasWidth, canvasHeight);
     document.getElementById('game-canvas').appendChild(renderer.domElement);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -569,21 +608,27 @@ function initGame() {
   }
 
   function onMouseMove(e) {
-    const x = (e.clientX / window.innerWidth) * 2 - 1;
-    arrowTargetX = x * 4;
+    const rect = renderer.domElement.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    arrowTargetX = x * 3.2;
   }
 
   function onTouchMove(e) {
-    const x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
-    arrowTargetX = x * 4;
+    const rect = renderer.domElement.getBoundingClientRect();
+    const x = ((e.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
+    arrowTargetX = x * 3.2;
   }
 
   function onResize() {
     const aspect = window.innerWidth / window.innerHeight;
-    camera.left = -5 * aspect;
-    camera.right = 5 * aspect;
+    const viewSize = 4;
+    camera.left = -viewSize * aspect;
+    camera.right = viewSize * aspect;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    
+    const canvasWidth = Math.min(window.innerWidth * 0.9, 600);
+    const canvasHeight = Math.min(window.innerHeight * 0.9, 800);
+    renderer.setSize(canvasWidth, canvasHeight);
   }
 
   function animate() {
@@ -657,6 +702,7 @@ function initGame() {
     if (animationId) cancelAnimationFrame(animationId);
     
     finalScoreDisplay.textContent = score;
+    finalScoreDisplay2.textContent = score;
     gameOverOverlay.classList.remove('hidden');
   }
 
