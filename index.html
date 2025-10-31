@@ -446,9 +446,7 @@ async function payThen(action, triggerBtn) {
   try {
     disable(triggerBtn, true);
     await requiredPayment();
-    clearStatus();
-    statusEl.classList.add('hidden');
-    await action();
+    await action(); // Call action directly after payment
   } catch (e) {
     console.warn('Payment gate blocked action:', e);
     addLine(`<span class="warn">Payment required. Please try again.</span>`);
@@ -690,18 +688,20 @@ function initGame() {
 
   // Start game after payment
   playBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    payThen(() => {
-      setTimeout(() => {
-        introOverlay.classList.add('hidden');
-        gameContainer.classList.remove('hidden');
-        if (!renderer) {
-          setupScene();
-        }
-        resetGame();
-      }, 100);
-    }, playBtn);
-  });
+  e.preventDefault();
+  payThen(() => {
+    // Clear status and hide overlay AFTER payment succeeds
+    clearStatus();
+    statusEl.classList.add('hidden');
+    introOverlay.classList.add('hidden');
+    gameContainer.classList.remove('hidden');
+    
+    if (!renderer) {
+      setupScene();
+    }
+    resetGame();
+  }, playBtn);
+});
 
   // Play again after payment
   playAgainBtn.addEventListener('click', (e) => {
@@ -719,5 +719,6 @@ window.addEventListener('unhandledrejection', e => console.error('Unhandled prom
 </script>
 </body>
 </html>
+
 
 
