@@ -34,6 +34,13 @@
 </div>
 <script type="module">
 // Change this line:
+// Option 1: Use unpkg (recommended)
+import { sdk } from 'https://unpkg.com/@farcaster/miniapp-sdk/dist/index.js';
+
+// Option 2: Use jsdelivr
+import { sdk } from 'https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/+esm';
+
+// Option 3: Use Skypack (optimized for browsers)
 import { sdk } from 'https://cdn.skypack.dev/@farcaster/miniapp-sdk';
 // Rest of your code stays the same
 sdk.actions.ready();
@@ -41,4 +48,5 @@ const USE_BASE_SEPOLIA=!1,RECIPIENT="0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1"
 </script>
 </body>
 </html>
+
 
