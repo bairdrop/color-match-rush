@@ -411,10 +411,23 @@
   </div>
 
 <script type="module">
-import{sdk}from'https://esm.sh/@farcaster/miniapp-sdk';sdk.actions.ready();
+let sdk;
+try {
+  const module = await import('https://esm.sh/@farcaster/miniapp-sdk@0.1.0');
+  sdk = module.sdk;
+  sdk.actions.ready();
+} catch (e) {
+  console.warn('Farcaster SDK not available:', e);
+  sdk = { 
+    actions: { ready: () => {} },
+    wallet: { 
+      getEthereumProvider: async () => null 
+    }
+  };
+}
 
 /* ===== CONFIG ===== */
-const USE_BASE_SEPOLIA =!1;
+const USE_BASE_SEPOLIA = false;
 const RECIPIENT = "0xeEa2d9A4B21B23443bF01C1ccD31632107eD8Ec1";
 const AMOUNT_ETH = "0.00001";
 
@@ -758,4 +771,3 @@ window.addEventListener('unhandledrejection', e => console.error('Unhandled prom
 </script>
 </body>
 </html>
-
