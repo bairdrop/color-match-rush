@@ -483,7 +483,9 @@ function initGame() {
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('game-canvas').appendChild(renderer.domElement);
+    const canvas = document.getElementById('game-canvas');
+    canvas.innerHTML = '';
+    canvas.appendChild(renderer.domElement);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
@@ -666,26 +668,34 @@ function initGame() {
     scoreDisplay.textContent = '0';
     timerDisplay.textContent = '15s';
     
-    arrow.position.x = 0;
-    arrow.material.color.setHex(colors[0].hex);
+    if (arrow) {
+      arrow.position.x = 0;
+      arrow.material.color.setHex(colors[0].hex);
+    }
     
     for (let i = 0; i < 3; i++) {
       createBandSet(4 + i * bandSpacing);
     }
     
     gameActive = true;
+    if (!animationId) {
+      animate();
+    }
     startTimer();
-    animate();
   }
 
   // Start game after payment
   playBtn.addEventListener('click', (e) => {
     e.preventDefault();
     payThen(() => {
-      introOverlay.classList.add('hidden');
-      gameContainer.classList.remove('hidden');
-      setupScene();
-      resetGame();
+      setTimeout(() => {
+        introOverlay.classList.add('hidden');
+        gameContainer.classList.remove('hidden');
+        if (!renderer) {
+          setupScene();
+        }
+        resetGame();
+      }, 100);
     }, playBtn);
   });
 
